@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bb-blue: #ADD8E6;
+  --bb-orange: #FFDAB9;
+  --bb-white: #FFFFFF;
+}
+
+body {
+  @apply bg-bb-white min-h-screen font-sans;
+}
+
+@layer components {
+  .input-field {
+    @apply px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bb-blue focus:border-transparent transition-colors;
+  }
+
+  .btn-primary {
+    @apply px-6 py-2 bg-bb-blue text-white rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-bb-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-bb-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+  }
+} 

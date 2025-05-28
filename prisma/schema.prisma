@@ -1,0 +1,71 @@
+// This is your Prisma schema file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Parent {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  students  Student[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Student {
+  id         String     @id @default(cuid())
+  userName   String     @unique
+  password   String
+  name       String
+  grade      Int
+  categories String[]
+  interests  String[]
+  parent     Parent     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  parentId   String
+  worksheets Worksheet[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Worksheet {
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  subject      String
+  grade        Int
+  student      Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    String
+  status       WorksheetStatus @default(NOT_STARTED)
+  score        Int?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  questions    Question[]     @relation("WorksheetToQuestion")
+}
+
+model Question {
+  id            String    @id @default(cuid())
+  content       String
+  options       String[]
+  answer        String
+  explanation   String
+  worksheet     Worksheet @relation("WorksheetToQuestion", fields: [worksheetId], references: [id], onDelete: Cascade)
+  worksheetId   String
+  studentAnswer String?
+  isCorrect     Boolean?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum WorksheetStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+} 
