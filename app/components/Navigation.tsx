@@ -8,21 +8,19 @@ export default function Navigation() {
   const { data: session } = useSession()
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/BG_Logo.svg"
-                alt="BrainGym Logo"
-                width={40}
-                height={40}
-                className="mr-2"
-              />
-              <span className="text-xl font-serif font-bold">
-                Brain<span className="text-bg-blue">Gym</span>
-              </span>
+              <div className="relative w-[150px] h-[60px]">
+                <Image
+                  src="/BrainGym_Logo_Cropped.png"
+                  alt="BrainGym Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
             </Link>
           </div>
 

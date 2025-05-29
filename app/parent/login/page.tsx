@@ -76,10 +76,10 @@ export default function ParentLogin() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/BG_Logo.svg"
+              src="/BrainGym_Logo_Cropped.png"
               alt="BrainGym Logo"
-              width={80}
-              height={80}
+              width={200}
+              height={200}
               className="mx-auto mb-4"
             />
           </Link>
@@ -138,7 +138,7 @@ export default function ParentLogin() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-bb-blue focus:ring-bb-blue border-gray-300 rounded"
+                  className="h-4 w-4 text-bg-blue focus:ring-bg-blue border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
@@ -146,7 +146,7 @@ export default function ParentLogin() {
               </div>
               <Link
                 href="/parent/forgot-password"
-                className="text-sm text-bb-blue hover:text-blue-700"
+                className="text-sm text-bg-blue-dark hover:text-bg-blue"
               >
                 Forgot password?
               </Link>
@@ -176,7 +176,7 @@ export default function ParentLogin() {
               Don't have an account?{' '}
               <Link 
                 href="/parent/signup"
-                className="text-bb-blue hover:text-blue-700 font-medium"
+                className="text-bg-blue-dark hover:text-bg-blue font-medium"
               >
                 Sign up here
               </Link>
@@ -184,7 +184,7 @@ export default function ParentLogin() {
             <div className="border-t border-gray-200 pt-4">
               <Link 
                 href="/student/login"
-                className="text-sm text-bb-blue hover:text-blue-700"
+                className="text-sm text-bg-blue-dark hover:text-bg-blue"
               >
                 Student? Log in here
               </Link>

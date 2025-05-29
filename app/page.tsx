@@ -10,10 +10,10 @@ export default function Home() {
           <div className="text-center">
             <div className="mb-8 relative">
               <Image
-                src="/BG_Logo.svg"
+                src="/BrainGym_Logo_Cropped.png"
                 alt="BrainGym Logo"
-                width={200}
-                height={200}
+                width={300}
+                height={300}
                 className="mx-auto"
                 priority
               />
@@ -54,7 +54,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-bg-blue">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-serif font-bold text-center mb-12">
             Why Choose BrainGym?
@@ -62,7 +62,7 @@ export default function Home() {
           
           <div className="grid md:grid-cols-3 gap-8">
             {/* Personalized Learning */}
-            <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -75,7 +75,7 @@ export default function Home() {
             </div>
 
             {/* Interest-Based */}
-            <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -88,7 +88,7 @@ export default function Home() {
             </div>
 
             {/* Comprehensive Subjects */}
-            <div className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                 <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -104,14 +104,14 @@ export default function Home() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-bg-orange">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-serif font-bold text-center mb-12">
             Benefits for Students
           </h2>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,7 +127,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
                   <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,7 +143,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +159,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
                   <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

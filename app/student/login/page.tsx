@@ -66,10 +66,10 @@ function StudentLoginContent() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/BG_Logo.svg"
+              src="/BrainGym_Logo_Cropped.png"
               alt="BrainGym Logo"
-              width={80}
-              height={80}
+              width={200}
+              height={200}
               className="mx-auto mb-4"
             />
           </Link>
@@ -131,7 +131,7 @@ function StudentLoginContent() {
           <div className="mt-4 text-center">
             <Link 
               href="/parent/login"
-              className="text-sm text-bb-blue hover:text-blue-700"
+              className="text-sm text-bg-blue-dark hover:text-bg-blue"
             >
               Parent? Log in here
             </Link>

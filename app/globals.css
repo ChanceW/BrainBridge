@@ -6,6 +6,7 @@
 
 :root {
   --bg-blue: #ADD8E6;
+  --bg-blue-dark: #5BA3C4;
   --bg-orange: #FFDAB9;
   --bg-white: #FFFFFF;
 }
@@ -16,7 +17,7 @@ body {
 
 @layer components {
   .input-field {
-    @apply px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bg-blue focus:border-transparent transition-colors;
+    @apply px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bg-blue-dark focus:border-transparent transition-colors;
   }
 
   .btn-primary {
@@ -24,15 +25,15 @@ body {
   }
 
   .btn-secondary {
-    @apply px-6 py-2 bg-white text-gray-700 border border-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-bg-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+    @apply px-6 py-2 bg-white text-gray-700 border border-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-bg-blue-dark focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
   }
 
   .btn-get-started {
-    @apply px-6 py-2 bg-bg-blue text-gray-700 border border-gray-700 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-bg-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+    @apply px-6 py-2 bg-bg-blue text-gray-700 border border-gray-700 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-bg-blue-dark focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
   }
 
   .btn-parent-login {
-    @apply px-6 py-2 bg-white text-gray-700 border border-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-bg-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+    @apply px-6 py-2 bg-white text-gray-700 border border-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-bg-blue-dark focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
   }
 
   .btn-student-login {
@@ -40,6 +41,6 @@ body {
   }
 
   .btn-logout {
-    @apply px-6 py-2 bg-bg-blue text-gray-700 border border-gray-700 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-bg-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+    @apply px-6 py-2 bg-bg-blue text-gray-700 border border-gray-700 rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-bg-blue-dark focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
   }
 } 

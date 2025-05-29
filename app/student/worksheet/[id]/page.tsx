@@ -227,126 +227,170 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     <>
       <Navigation />
       <main className="min-h-screen p-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header with Exit and Reset buttons */}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-serif font-bold">
-              {worksheet.title}
-            </h1>
-            <div className="flex gap-4">
-              {!isReview && (
+        <div className="flex gap-6 max-w-6xl mx-auto">
+          {/* Question Navigation Sidebar */}
+          <div className="w-64 bg-white rounded-lg shadow-md p-4 h-fit sticky top-8">
+            <h3 className="font-bold mb-4">Questions</h3>
+            <div className="grid grid-cols-4 gap-2">
+              {worksheet.questions.map((question, index) => (
                 <button
-                  onClick={() => setShowExitConfirm(true)}
-                  className="btn-secondary"
+                  key={index}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                  className={`
+                    relative w-full aspect-square rounded-lg text-sm font-medium
+                    flex items-center justify-center transition-colors
+                    ${currentQuestionIndex === index 
+                      ? 'border-b-2 border-bg-blue-dark text-bg-blue-dark bg-white' 
+                      : answers[index]
+                        ? 'bg-bg-blue bg-opacity-20 text-bg-blue-dark'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }
+                  `}
+                  title={`Question ${index + 1}${answers[index] ? ' (Answered)' : ''}`}
                 >
-                  Save & Exit
+                  {index + 1}
+                  {answers[index] && (
+                    <svg 
+                      className="absolute -top-1 -right-1 w-3 h-3 text-green-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
                 </button>
-              )}
-              {isReview && (
-                <button
-                  onClick={() => setShowResetConfirm(true)}
-                  className="btn-secondary"
-                >
-                  Reset Worksheet
-                </button>
-              )}
+              ))}
             </div>
           </div>
 
-          <p className="text-gray-600 mb-8">{worksheet.description}</p>
-
-          {error && (
-            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
-              {error}
-            </div>
-          )}
-
-          <div>
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
-                <span>{Math.round(((currentQuestionIndex + 1) / worksheet.questions.length) * 100)}%</span>
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Header with Exit and Reset buttons */}
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-serif font-bold">
+                {worksheet.title}
+              </h1>
+              <div className="flex gap-4">
+                {!isReview && (
+                  <button
+                    onClick={() => setShowExitConfirm(true)}
+                    className="btn-secondary"
+                  >
+                    Save & Exit
+                  </button>
+                )}
+                {isReview && (
+                  <button
+                    onClick={() => setShowResetConfirm(true)}
+                    className="btn-secondary"
+                  >
+                    Reset Worksheet
+                  </button>
+                )}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-bb-blue rounded-full h-2 transition-all duration-300"
-                  style={{ width: `${((currentQuestionIndex + 1) / worksheet.questions.length) * 100}%` }}
-                />
-              </div>
             </div>
 
-            {/* Question */}
+            <p className="text-gray-600 mb-8">{worksheet.description}</p>
+
+            {error && (
+              <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+                {error}
+              </div>
+            )}
+
             <div>
-              <h2 className="text-xl font-bold mb-4">{currentQuestion.content}</h2>
-              <div className="space-y-3">
-                {currentQuestion.options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => !isReview && handleAnswer(option)}
-                    className={`w-full p-4 text-left rounded-lg border transition-colors ${
-                      answers[currentQuestionIndex] === option
-                        ? isReview
-                          ? currentQuestion.isCorrect
-                            ? 'bg-green-100 border-green-500'
-                            : 'bg-red-100 border-red-500'
-                          : 'bg-bb-blue bg-opacity-20 border-bb-blue'
-                        : isReview && option === currentQuestion.answer
-                        ? 'bg-green-100 border-green-500'
-                        : 'border-gray-200 hover:border-bb-blue'
-                    }`}
-                    disabled={isReview}
-                  >
-                    {option}
-                  </button>
-                ))}
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
+                  <span>{Math.round(((currentQuestionIndex + 1) / worksheet.questions.length) * 100)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-bg-blue rounded-full h-2 transition-all duration-300"
+                    style={{ width: `${((currentQuestionIndex + 1) / worksheet.questions.length) * 100}%` }}
+                  />
+                </div>
               </div>
 
-              {/* Show explanation in review mode */}
-              {isReview && (
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <h3 className="font-semibold mb-2">Explanation:</h3>
-                  <p>{currentQuestion.explanation}</p>
-                  {currentQuestion.studentAnswer && (
-                    <p className="mt-2 text-gray-600">
-                      Your answer: {currentQuestion.studentAnswer}
-                      {currentQuestion.isCorrect 
-                        ? ' ✓' 
-                        : ` ✗ (Correct answer: ${currentQuestion.answer})`}
-                    </p>
-                  )}
+              {/* Question */}
+              <div>
+                <h2 className="text-xl font-bold mb-4">{currentQuestion.content}</h2>
+                <div className="space-y-3">
+                  {currentQuestion.options.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => !isReview && handleAnswer(option)}
+                      className={`w-full p-4 text-left rounded-lg border transition-colors ${
+                        answers[currentQuestionIndex] === option
+                          ? isReview
+                            ? currentQuestion.isCorrect
+                              ? 'bg-green-100 border-green-500'
+                              : 'bg-red-100 border-red-500'
+                            : 'bg-bg-blue bg-opacity-20 border-bg-blue-dark'
+                          : isReview && option === currentQuestion.answer
+                          ? 'bg-green-100 border-green-500'
+                          : 'border-gray-200 hover:border-bg-blue-dark'
+                      }`}
+                      disabled={isReview}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </div>
-              )}
-            </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              <button
-                onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
-                className="btn-secondary px-6"
-              >
-                Previous
-              </button>
+                {/* Show explanation in review mode */}
+                {isReview && (
+                  <div className="mt-6 p-4 bg-bg-blue bg-opacity-10 rounded-lg">
+                    <h3 className="font-semibold mb-2">Explanation:</h3>
+                    <p>{currentQuestion.explanation}</p>
+                    {currentQuestion.studentAnswer && (
+                      <p className="mt-2 text-gray-600">
+                        Your answer: {currentQuestion.studentAnswer}
+                        {currentQuestion.isCorrect 
+                          ? ' ✓' 
+                          : ` ✗ (Correct answer: ${currentQuestion.answer})`}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
 
-              {isLastQuestion ? (
-                !isReview && (
-                  <button
-                    onClick={() => setShowSubmitConfirm(true)}
-                    className="btn-primary px-6"
-                    disabled={isSubmitting || !hasAnsweredAll}
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
-                  </button>
-                )
-              ) : (
+              {/* Navigation Buttons */}
+              <div className="flex justify-between mt-8">
                 <button
-                  onClick={handleNext}
-                  className="btn-primary px-6"
+                  onClick={handlePrevious}
+                  disabled={currentQuestionIndex === 0}
+                  className="btn-secondary px-6"
                 >
-                  Next
+                  Previous
                 </button>
-              )}
+
+                {isLastQuestion ? (
+                  !isReview && (
+                    <button
+                      onClick={() => setShowSubmitConfirm(true)}
+                      className="btn-primary px-6"
+                      disabled={isSubmitting || !hasAnsweredAll}
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit'}
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={handleNext}
+                    className="btn-primary px-6"
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

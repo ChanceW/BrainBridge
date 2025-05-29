@@ -71,10 +71,10 @@ export default function ParentSignup() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/BG_Logo.svg"
+              src="/BrainGym_Logo_Cropped.png"
               alt="BrainGym Logo"
-              width={80}
-              height={80}
+              width={200}
+              height={200}
               className="mx-auto mb-4"
             />
           </Link>
@@ -186,7 +186,7 @@ export default function ParentSignup() {
               Already have an account?{' '}
               <Link 
                 href="/parent/login"
-                className="text-bb-blue hover:text-blue-700 font-medium"
+                className="text-bg-blue-dark hover:text-bg-blue font-medium"
               >
                 Log in here
               </Link>

@@ -19,10 +19,10 @@ function ErrorPageContent() {
       <div className="max-w-md w-full text-center">
         <Link href="/" className="inline-block mb-8">
           <Image
-            src="/BG_Logo.svg"
+            src="/BrainGym_Logo_Cropped.png"
             alt="BrainGym Logo"
-            width={80}
-            height={80}
+            width={200}
+            height={200}
             className="mx-auto"
           />
         </Link>
