@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { authOptions } from '../auth/config'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -21,7 +21,7 @@ export async function GET() {
     const students = await prisma.student.findMany({
       where: {
         parent: {
-          email: session.user.email
+          email: session.user.email as string
         }
       },
       select: {
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
     const parent = await prisma.parent.findUnique({
       where: {
-        email: session.user.email
+        email: session.user.email as string
       }
     })
 
@@ -121,7 +121,7 @@ export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -136,7 +136,7 @@ export async function PUT(request: Request) {
       where: {
         id,
         parent: {
-          email: session.user.email
+          email: session.user.email as string
         }
       }
     })
@@ -196,7 +196,7 @@ export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -218,7 +218,7 @@ export async function DELETE(request: Request) {
       where: {
         id,
         parent: {
-          email: session.user.email
+          email: session.user.email as string
         }
       }
     })

@@ -1,50 +1,65 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function ParentLogin() {
+export default function ParentSignup() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
 
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match')
+      setIsLoading(false)
+      return
+    }
+
     try {
-      const result = await signIn('credentials', {
-        userName: email,
-        password,
-        role: 'parent',
-        redirect: false,
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: 'parent',
+        }),
       })
 
-      if (result?.error) {
-        if (result.error.includes('Invalid email')) {
-          setError('Email not found. Please check your email or sign up.')
-        } else if (result.error.includes('Invalid password')) {
-          setError('Incorrect password. Please try again.')
-        } else {
-          setError('Login failed. Please try again.')
-        }
-      } else {
-        if (rememberMe) {
-          localStorage.setItem('rememberParentEmail', email)
-        } else {
-          localStorage.removeItem('rememberParentEmail')
-        }
-        router.push('/parent/dashboard')
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong')
       }
+
+      // Redirect to login page on success
+      router.push('/parent/login?registered=true')
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      setError(error instanceof Error ? error.message : 'Failed to create account')
     } finally {
       setIsLoading(false)
     }
@@ -64,10 +79,10 @@ export default function ParentLogin() {
             />
           </Link>
           <h1 className="text-3xl font-serif font-bold mb-2">
-            Parent Login
+            Create Parent Account
           </h1>
           <p className="text-gray-600">
-            Welcome back! Please enter your credentials to continue.
+            Join BrainBridge to support your child's learning journey
           </p>
         </div>
 
@@ -80,17 +95,33 @@ export default function ParentLogin() {
             )}
 
             <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                className="input-field w-full"
+                required
+                placeholder="Enter your full name"
+              />
+            </div>
+
+            <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="input-field w-full"
                 required
-                autoComplete="email"
                 placeholder="Enter your email"
               />
             </div>
@@ -101,35 +132,34 @@ export default function ParentLogin() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="input-field w-full"
                 required
-                autoComplete="current-password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
+                minLength={8}
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Password must be at least 8 characters long
+              </p>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-bb-blue focus:ring-bb-blue border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-              <Link
-                href="/parent/forgot-password"
-                className="text-sm text-bb-blue hover:text-blue-700"
-              >
-                Forgot password?
-              </Link>
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="input-field w-full"
+                required
+                placeholder="Confirm your password"
+              />
             </div>
 
             <button
@@ -143,32 +173,24 @@ export default function ParentLogin() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Logging in...
+                  Creating Account...
                 </>
               ) : (
-                'Log In'
+                'Create Account'
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link 
-                href="/parent/signup"
+                href="/parent/login"
                 className="text-bb-blue hover:text-blue-700 font-medium"
               >
-                Sign up here
+                Log in here
               </Link>
             </p>
-            <div className="border-t border-gray-200 pt-4">
-              <Link 
-                href="/student/login"
-                className="text-sm text-bb-blue hover:text-blue-700"
-              >
-                Student? Log in here
-              </Link>
-            </div>
           </div>
         </div>
       </div>

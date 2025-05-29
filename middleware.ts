@@ -7,7 +7,13 @@ export default withAuth(
     const path = req.nextUrl.pathname
 
     // Public paths that don't require authentication checks
-    const publicPaths = ['/student/login', '/parent/login', '/error']
+    const publicPaths = [
+      '/student/login',
+      '/parent/login',
+      '/parent/signup',
+      '/parent/forgot-password',
+      '/error'
+    ]
     if (publicPaths.includes(path)) {
       // If already authenticated, redirect to appropriate dashboard
       if (token) {

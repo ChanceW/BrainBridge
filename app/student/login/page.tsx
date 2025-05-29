@@ -6,8 +6,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { Suspense } from 'react'
 
-export default function StudentLogin() {
+function StudentLoginContent() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
@@ -142,5 +143,13 @@ export default function StudentLogin() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function StudentLogin() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <StudentLoginContent />
+    </Suspense>
   )
 } 

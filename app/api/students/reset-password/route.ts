@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { authOptions } from '../../auth/config'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -18,14 +18,14 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json()
-    const { id, newPassword } = data
+    const { id, password } = data
 
     // Verify parent owns this student
     const student = await prisma.student.findFirst({
       where: {
         id,
         parent: {
-          email: session.user.email
+          email: session.user.email as string
         }
       }
     })
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     await prisma.student.update({
       where: { id },
