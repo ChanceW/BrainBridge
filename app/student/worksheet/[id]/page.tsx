@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/app/components/Navigation'
+import WorksheetAnalytics from '@/app/components/WorksheetAnalytics'
 
 interface Question {
   id: string
@@ -41,6 +42,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const [hasStarted, setHasStarted] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -196,6 +198,31 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     }
   }
 
+  const handleStart = async () => {
+    try {
+      const response = await fetch('/api/worksheets', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          worksheetId: worksheet?.id,
+          status: 'IN_PROGRESS',
+          answers: [],
+        }),
+      })
+
+      if (response.ok) {
+        setHasStarted(true)
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Failed to start worksheet')
+      }
+    } catch (error) {
+      setError('Failed to start worksheet')
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <>
@@ -218,10 +245,194 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     )
   }
 
+  if (!hasStarted && worksheet.status === 'NOT_STARTED') {
+    return (
+      <>
+        <Navigation />
+        <main className="min-h-screen p-8">
+          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <h1 className="text-3xl font-serif font-bold mb-4 text-center">
+              {worksheet.title}
+            </h1>
+            <p className="text-gray-600 mb-8 text-center">{worksheet.description}</p>
+            {error && (
+              <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-6">
+                {error}
+              </div>
+            )}
+            <div className="text-center">
+              <button
+                onClick={handleStart}
+                className="btn-primary px-8 py-3"
+              >
+                Start Worksheet
+              </button>
+            </div>
+          </div>
+        </main>
+      </>
+    )
+  }
+
   const currentQuestion = worksheet.questions[currentQuestionIndex]
   const isLastQuestion = currentQuestionIndex === worksheet.questions.length - 1
   const isReview = worksheet.status === 'COMPLETED'
   const hasAnsweredAll = answers.every(answer => answer !== '')
+
+  if (isReview) {
+    return (
+      <>
+        <Navigation />
+        <main className="min-h-screen p-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-serif font-bold">
+                {worksheet.title} - Review
+              </h1>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => router.push('/student/dashboard')}
+                  className="btn-secondary"
+                >
+                  Return to Dashboard
+                </button>
+                <button
+                  onClick={() => setShowResetConfirm(true)}
+                  className="btn-secondary"
+                >
+                  Reset Worksheet
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8">
+              {/* Analytics Report */}
+              <WorksheetAnalytics 
+                questions={worksheet.questions}
+                score={worksheet.score || 0}
+                completedAt={worksheet.completedAt || ''}
+                timeSpent={worksheet.startedAt && worksheet.completedAt ? 
+                  (new Date(worksheet.completedAt).getTime() - new Date(worksheet.startedAt).getTime()) / 1000 
+                  : undefined}
+              />
+
+              {/* Question Review */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold">Question Review</h2>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
+                  </div>
+                </div>
+
+                {/* Question Navigation */}
+                <div className="grid grid-cols-8 gap-2 mb-6">
+                  {worksheet.questions.map((question, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentQuestionIndex(index)}
+                      className={`
+                        relative w-full aspect-square rounded-lg text-sm font-medium
+                        flex items-center justify-center transition-colors
+                        ${currentQuestionIndex === index 
+                          ? 'border-b-2 border-bg-blue-dark text-bg-blue-dark bg-white' 
+                          : question.isCorrect
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                        }
+                      `}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Current Question */}
+                <div>
+                  <h3 className="text-lg font-medium mb-4">{currentQuestion.content}</h3>
+                  <div className="space-y-3">
+                    {currentQuestion.options.map((option, index) => (
+                      <div
+                        key={index}
+                        className={`w-full p-4 rounded-lg border ${
+                          option === currentQuestion.studentAnswer
+                            ? currentQuestion.isCorrect
+                              ? 'bg-green-100 border-green-500'
+                              : 'bg-red-100 border-red-500'
+                            : option === currentQuestion.answer
+                              ? 'bg-green-100 border-green-500'
+                              : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        {option}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 p-4 bg-bg-blue bg-opacity-10 rounded-lg">
+                    <h4 className="font-semibold mb-2">Explanation:</h4>
+                    <p>{currentQuestion.explanation}</p>
+                    {currentQuestion.studentAnswer && (
+                      <p className="mt-2 text-gray-600">
+                        Your answer: {currentQuestion.studentAnswer}
+                        {currentQuestion.isCorrect 
+                          ? ' ✓' 
+                          : ` ✗ (Correct answer: ${currentQuestion.answer})`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentQuestionIndex === 0}
+                    className="btn-secondary px-6"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={currentQuestionIndex === worksheet.questions.length - 1}
+                    className="btn-primary px-6"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reset Confirmation Modal */}
+          {showResetConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <h3 className="text-xl font-bold mb-4">Reset Worksheet?</h3>
+                <p className="text-gray-600 mb-6">
+                  This will clear all your answers and allow you to start over. This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => setShowResetConfirm(false)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    className="btn-primary"
+                  >
+                    Reset Worksheet
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </>
+    )
+  }
 
   return (
     <>
@@ -448,32 +659,6 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                   disabled={isSubmitting || !hasAnsweredAll}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Worksheet'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Reset Confirmation Modal */}
-        {showResetConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold mb-4">Reset Worksheet?</h3>
-              <p className="text-gray-600 mb-6">
-                This will clear all your answers and allow you to start over. This action cannot be undone.
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowResetConfirm(false)}
-                  className="btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="btn-primary"
-                >
-                  Reset Worksheet
                 </button>
               </div>
             </div>

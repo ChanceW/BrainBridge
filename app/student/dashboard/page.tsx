@@ -77,16 +77,15 @@ export default function StudentDashboard() {
   }
 
   const generateNewWorksheet = async () => {
+    setGenerating(true)
     try {
-      setGenerating(true)
       const response = await fetch('/api/worksheets/generate', {
         method: 'POST',
       })
 
       if (response.ok) {
-        const newWorksheet = await response.json()
-        setCurrentWorksheet(newWorksheet)
-        router.push(`/student/worksheet/${newWorksheet.id}`)
+        await fetchWorksheets() // Refresh the worksheet list
+        setShowSuccess(false) // Reset success message from any previous submissions
       } else {
         const data = await response.json()
         setError(data.error || 'Failed to generate worksheet')
@@ -99,27 +98,7 @@ export default function StudentDashboard() {
   }
 
   const startWorksheet = async (worksheetId: string) => {
-    try {
-      const response = await fetch('/api/worksheets', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          worksheetId,
-          status: 'IN_PROGRESS',
-        }),
-      })
-
-      if (response.ok) {
-        router.push(`/student/worksheet/${worksheetId}`)
-      } else {
-        const data = await response.json()
-        setError(data.error || 'Failed to start worksheet')
-      }
-    } catch (error) {
-      setError('Failed to start worksheet')
-    }
+    router.push(`/student/worksheet/${worksheetId}`)
   }
 
   const redoWorksheet = async (worksheetId: string) => {
