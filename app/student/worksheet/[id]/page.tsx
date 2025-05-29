@@ -37,6 +37,9 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -57,7 +60,8 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
         
         if (foundWorksheet) {
           setWorksheet(foundWorksheet)
-          setAnswers(new Array(foundWorksheet.questions.length).fill(''))
+          // Initialize answers with saved student answers or empty strings
+          setAnswers(foundWorksheet.questions.map((q: Question) => q.studentAnswer || ''))
         } else {
           setError('Worksheet not found')
         }
@@ -89,6 +93,45 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     }
   }
 
+  const handleSaveProgress = async () => {
+    if (!worksheet) return
+
+    setIsSaving(true)
+    try {
+      const response = await fetch('/api/worksheets', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          worksheetId: worksheet.id,
+          status: 'IN_PROGRESS',
+          answers,
+        }),
+      })
+
+      if (response.ok) {
+        return true
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Failed to save progress')
+        return false
+      }
+    } catch (error) {
+      setError('Failed to save progress')
+      return false
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleExit = async () => {
+    const saved = await handleSaveProgress()
+    if (saved) {
+      router.push('/student/dashboard')
+    }
+  }
+
   const handleSubmit = async () => {
     if (!worksheet) return
 
@@ -116,6 +159,36 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
       setError('Failed to submit worksheet')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleReset = async () => {
+    if (!worksheet) return
+
+    try {
+      const response = await fetch('/api/worksheets', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          worksheetId: worksheet.id,
+          status: 'NOT_STARTED',
+          answers: new Array(worksheet.questions.length).fill(''),
+        }),
+      })
+
+      if (response.ok) {
+        // Refetch the worksheet to get the reset state
+        await fetchWorksheet()
+        setCurrentQuestionIndex(0)
+        setShowResetConfirm(false)
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Failed to reset worksheet')
+      }
+    } catch (error) {
+      setError('Failed to reset worksheet')
     }
   }
 
@@ -150,12 +223,32 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
       <Navigation />
       <main className="min-h-screen p-8">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-serif font-bold mb-2">
+          {/* Header with Exit and Reset buttons */}
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-serif font-bold">
               {worksheet.title}
             </h1>
-            <p className="text-gray-600">{worksheet.description}</p>
+            <div className="flex gap-4">
+              {!isReview && (
+                <button
+                  onClick={() => setShowExitConfirm(true)}
+                  className="btn-secondary"
+                >
+                  Save & Exit
+                </button>
+              )}
+              {isReview && (
+                <button
+                  onClick={() => setShowResetConfirm(true)}
+                  className="btn-secondary"
+                >
+                  Reset Worksheet
+                </button>
+              )}
+            </div>
           </div>
+
+          <p className="text-gray-600 mb-8">{worksheet.description}</p>
 
           {error && (
             <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
@@ -203,42 +296,48 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                   </button>
                 ))}
               </div>
+
+              {/* Show explanation in review mode */}
+              {isReview && (
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-semibold mb-2">Explanation:</h3>
+                  <p>{currentQuestion.explanation}</p>
+                  {currentQuestion.studentAnswer && (
+                    <p className="mt-2 text-gray-600">
+                      Your answer: {currentQuestion.studentAnswer}
+                      {currentQuestion.isCorrect 
+                        ? ' ✓' 
+                        : ` ✗ (Correct answer: ${currentQuestion.answer})`}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Review Mode Explanation */}
-            {isReview && currentQuestion.studentAnswer && (
-              <div className={`p-4 rounded-lg mb-6 ${
-                currentQuestion.isCorrect ? 'bg-green-50' : 'bg-red-50'
-              }`}>
-                <h3 className="font-bold mb-2">
-                  {currentQuestion.isCorrect ? 'Correct!' : 'Incorrect'}
-                </h3>
-                <p className="text-gray-700">{currentQuestion.explanation}</p>
-              </div>
-            )}
-
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <button
                 onClick={handlePrevious}
                 disabled={currentQuestionIndex === 0}
-                className="btn-secondary"
+                className="btn-secondary px-6"
               >
                 Previous
               </button>
-              
+
               {isLastQuestion ? (
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting || isReview}
-                  className="btn-primary"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
-                </button>
+                !isReview && (
+                  <button
+                    onClick={() => setShowExitConfirm(true)}
+                    className="btn-primary px-6"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
+                  </button>
+                )
               ) : (
                 <button
                   onClick={handleNext}
-                  className="btn-primary"
+                  className="btn-primary px-6"
                 >
                   Next
                 </button>
@@ -246,6 +345,59 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
+
+        {/* Exit Confirmation Modal */}
+        {showExitConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Save Progress & Exit?</h3>
+              <p className="text-gray-600 mb-6">
+                Your progress will be saved and you can continue later.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowExitConfirm(false)}
+                  className="btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExit}
+                  className="btn-primary"
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving...' : 'Save & Exit'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reset Confirmation Modal */}
+        {showResetConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Reset Worksheet?</h3>
+              <p className="text-gray-600 mb-6">
+                This will clear all your answers and allow you to start over. This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  className="btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="btn-primary"
+                >
+                  Reset Worksheet
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </>
   )
