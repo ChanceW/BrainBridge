@@ -30,21 +30,21 @@ export default function Home() {
             <div className="flex gap-4 justify-center mb-12">
               <Link 
                 href="/parent/signup" 
-                className="btn-primary text-lg px-8 py-3"
+                className="btn-get-started text-lg px-8 py-3"
               >
                 Get Started
               </Link>
               
               <Link 
                 href="/parent/login" 
-                className="btn-secondary text-lg px-8 py-3"
+                className="btn-parent-login text-lg px-8 py-3"
               >
                 Parent Login
               </Link>
               
               <Link 
                 href="/student/login" 
-                className="btn-secondary text-lg px-8 py-3"
+                className="btn-student-login text-lg px-8 py-3"
               >
                 Student Login
               </Link>
@@ -190,19 +190,19 @@ export default function Home() {
           <div className="flex gap-4 justify-center">
             <Link 
               href="/parent/signup" 
-              className="btn-primary text-lg px-8 py-3"
+              className="btn-get-started text-lg px-8 py-3"
             >
               Get Started
             </Link>
             <Link 
               href="/parent/login" 
-              className="btn-secondary text-lg px-8 py-3"
+              className="btn-parent-login text-lg px-8 py-3"
             >
               Parent Login
             </Link>
             <Link 
               href="/student/login" 
-              className="btn-secondary text-lg px-8 py-3"
+              className="btn-student-login text-lg px-8 py-3"
             >
               Student Login
             </Link>

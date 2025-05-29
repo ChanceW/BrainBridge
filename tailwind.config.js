@@ -8,9 +8,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'bb-blue': '#ADD8E6',
-        'bb-orange': '#FFDAB9',
-        'bb-white': '#FFFFFF',
+        'bg-blue': '#ADD8E6',
+        'bg-orange': '#FFDAB9',
+        'bg-white': '#FFFFFF',
       },
       fontFamily: {
         'sans': ['Open Sans', 'sans-serif'],

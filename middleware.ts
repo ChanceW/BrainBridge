@@ -15,10 +15,16 @@ export default withAuth(
       '/error'
     ]
     if (publicPaths.includes(path)) {
-      // If already authenticated, redirect to appropriate dashboard
+      // If already authenticated, only redirect if trying to access matching role's login
       if (token) {
-        const dashboardPath = token.role === 'student' ? '/student/dashboard' : '/parent/dashboard'
-        return NextResponse.redirect(new URL(dashboardPath, req.url))
+        if (
+          (token.role === 'student' && path === '/student/login') ||
+          (token.role === 'parent' && path === '/parent/login')
+        ) {
+          const dashboardPath = token.role === 'student' ? '/student/dashboard' : '/parent/dashboard'
+          return NextResponse.redirect(new URL(dashboardPath, req.url))
+        }
+        return NextResponse.next()
       }
       // Otherwise, allow access to public paths
       return NextResponse.next()

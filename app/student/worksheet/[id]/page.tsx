@@ -39,6 +39,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   useEffect(() => {
@@ -150,6 +151,9 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
       })
 
       if (response.ok) {
+        const data = await response.json()
+        setWorksheet({ ...worksheet, ...data })
+        setShowSubmitConfirm(false)
         router.push('/student/dashboard?submitted=true')
       } else {
         const data = await response.json()
@@ -217,6 +221,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
   const currentQuestion = worksheet.questions[currentQuestionIndex]
   const isLastQuestion = currentQuestionIndex === worksheet.questions.length - 1
   const isReview = worksheet.status === 'COMPLETED'
+  const hasAnsweredAll = answers.every(answer => answer !== '')
 
   return (
     <>
@@ -256,7 +261,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div>
             {/* Progress Bar */}
             <div className="mb-6">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
@@ -272,7 +277,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Question */}
-            <div className="mb-6">
+            <div>
               <h2 className="text-xl font-bold mb-4">{currentQuestion.content}</h2>
               <div className="space-y-3">
                 {currentQuestion.options.map((option, index) => (
@@ -315,7 +320,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between mt-8">
               <button
                 onClick={handlePrevious}
                 disabled={currentQuestionIndex === 0}
@@ -327,9 +332,9 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
               {isLastQuestion ? (
                 !isReview && (
                   <button
-                    onClick={() => setShowExitConfirm(true)}
+                    onClick={() => setShowSubmitConfirm(true)}
                     className="btn-primary px-6"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !hasAnsweredAll}
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit'}
                   </button>
@@ -367,6 +372,38 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                   disabled={isSaving}
                 >
                   {isSaving ? 'Saving...' : 'Save & Exit'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Submit Confirmation Modal */}
+        {showSubmitConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Submit Worksheet?</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to submit your worksheet? This action cannot be undone.
+                {!hasAnsweredAll && (
+                  <span className="block text-red-600 mt-2">
+                    Please answer all questions before submitting.
+                  </span>
+                )}
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowSubmitConfirm(false)}
+                  className="btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="btn-primary"
+                  disabled={isSubmitting || !hasAnsweredAll}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Worksheet'}
                 </button>
               </div>
             </div>

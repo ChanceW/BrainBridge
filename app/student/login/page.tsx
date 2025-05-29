@@ -20,13 +20,9 @@ function StudentLoginContent() {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // If already authenticated as a student, redirect to dashboard
+    // Only redirect if authenticated as a student
     if (status === 'authenticated' && session.user.role === 'student') {
       router.push('/student/dashboard')
-    }
-    // If authenticated as a parent, redirect to parent dashboard
-    else if (status === 'authenticated' && session.user.role === 'parent') {
-      router.push('/parent/dashboard')
     }
   }, [status, session, router])
 

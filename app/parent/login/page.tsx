@@ -1,18 +1,28 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
 export default function ParentLogin() {
   const router = useRouter()
+  const { data: session, status } = useSession()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/parent/dashboard'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+
+  // Only redirect if authenticated as a parent
+  useEffect(() => {
+    if (status === 'authenticated' && session.user.role === 'parent') {
+      router.push('/parent/dashboard')
+    }
+  }, [status, session, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,6 +35,7 @@ export default function ParentLogin() {
         password,
         role: 'parent',
         redirect: false,
+        callbackUrl,
       })
 
       if (result?.error) {
@@ -48,6 +59,15 @@ export default function ParentLogin() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show loading state while checking session
+  if (status === 'loading') {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </main>
+    )
   }
 
   return (

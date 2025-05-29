@@ -82,12 +82,12 @@ export async function GET() {
     })
 
     // Separate current and previous worksheets
-    const currentWorksheet = worksheets.find((w: WorksheetWithQuestions) => 
+    const currentWorksheet = worksheets.find((w) => 
       w.createdAt.toDateString() === new Date().toDateString() && 
       w.status !== 'COMPLETED'
     )
     
-    const previousWorksheets = worksheets.filter((w: WorksheetWithQuestions) => 
+    const previousWorksheets = worksheets.filter((w) => 
       w.createdAt.toDateString() !== new Date().toDateString() ||
       w.status === 'COMPLETED'
     )
@@ -113,7 +113,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { worksheetId, status, answers } = await request.json()
+    const { worksheetId, status, answers, reset } = await request.json()
 
     const student = await prisma.student.findFirst({
       where: {
@@ -156,6 +156,56 @@ export async function PUT(request: Request) {
         question.answer === answers[index]
       ).length
       score = Math.round((correctAnswers / totalQuestions) * 100)
+    }
+
+    // If resetting the worksheet, clear all progress
+    if (reset) {
+      const updatedWorksheet = await prisma.worksheet.update({
+        where: {
+          id: worksheetId,
+        },
+        data: {
+          status: 'NOT_STARTED',
+          score: null,
+          startedAt: null,
+          completedAt: null,
+          questions: {
+            updateMany: worksheet.questions.map((question: { id: string }) => ({
+              where: { id: question.id },
+              data: {
+                studentAnswer: null,
+                isCorrect: null,
+              },
+            })),
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          subject: true,
+          grade: true,
+          status: true,
+          score: true,
+          startedAt: true,
+          completedAt: true,
+          createdAt: true,
+          updatedAt: true,
+          questions: {
+            select: {
+              id: true,
+              content: true,
+              options: true,
+              answer: true,
+              explanation: true,
+              studentAnswer: true,
+              isCorrect: true,
+            },
+          },
+        },
+      })
+
+      return NextResponse.json(updatedWorksheet)
     }
 
     // Update worksheet status and answers

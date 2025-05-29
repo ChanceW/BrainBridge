@@ -1,8 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Navigation from '@/app/components/Navigation'
 
 interface Question {
@@ -31,11 +31,14 @@ interface Worksheet {
 export default function StudentDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [currentWorksheet, setCurrentWorksheet] = useState<Worksheet | null>(null)
   const [previousWorksheets, setPreviousWorksheets] = useState<Worksheet[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [redoingWorksheet, setRedoingWorksheet] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -44,6 +47,16 @@ export default function StudentDashboard() {
       fetchWorksheets()
     }
   }, [status, router])
+
+  useEffect(() => {
+    // Show success message if worksheet was just submitted
+    if (searchParams.get('submitted') === 'true') {
+      setShowSuccess(true)
+      // Hide success message after 5 seconds
+      const timer = setTimeout(() => setShowSuccess(false), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams])
 
   const fetchWorksheets = async () => {
     try {
@@ -109,6 +122,36 @@ export default function StudentDashboard() {
     }
   }
 
+  const redoWorksheet = async (worksheetId: string) => {
+    setRedoingWorksheet(worksheetId)
+    try {
+      const response = await fetch('/api/worksheets', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          worksheetId,
+          status: 'NOT_STARTED',
+          answers: [],
+          reset: true
+        }),
+      })
+
+      if (response.ok) {
+        await fetchWorksheets() // Refresh the worksheet list
+        router.push(`/student/worksheet/${worksheetId}`)
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Failed to reset worksheet')
+      }
+    } catch (error) {
+      setError('Failed to reset worksheet')
+    } finally {
+      setRedoingWorksheet(null)
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <>
@@ -132,6 +175,25 @@ export default function StudentDashboard() {
           {error && (
             <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
               {error}
+            </div>
+          )}
+
+          {showSuccess && (
+            <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4 flex items-center justify-between">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Worksheet submitted successfully! Your answers have been recorded.</span>
+              </div>
+              <button 
+                onClick={() => setShowSuccess(false)}
+                className="text-green-700 hover:text-green-900"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           )}
 
@@ -215,12 +277,23 @@ export default function StudentDashboard() {
                           </p>
                         )}
                       </div>
-                      <button
-                        onClick={() => startWorksheet(worksheet.id)}
-                        className="btn-secondary"
-                      >
-                        Review
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => startWorksheet(worksheet.id)}
+                          className="btn-secondary"
+                        >
+                          Review
+                        </button>
+                        {worksheet.status === 'COMPLETED' && (
+                          <button
+                            onClick={() => redoWorksheet(worksheet.id)}
+                            className="btn-primary"
+                            disabled={redoingWorksheet === worksheet.id}
+                          >
+                            {redoingWorksheet === worksheet.id ? 'Resetting...' : 'Redo'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="text-sm text-gray-500 mt-2">
                       Completed: {new Date(worksheet.completedAt!).toLocaleString()}
