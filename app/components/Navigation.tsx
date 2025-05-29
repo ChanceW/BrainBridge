@@ -14,14 +14,14 @@ export default function Navigation() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <Image
-                src="/BB_Logo.svg"
-                alt="BrainBridge Logo"
+                src="/BG_Logo.svg"
+                alt="BrainGym Logo"
                 width={40}
                 height={40}
                 className="mr-2"
               />
               <span className="text-xl font-serif font-bold">
-                Brain<span className="text-bb-orange">Bridge</span>
+                Brain<span className="text-bb-blue">Gym</span>
               </span>
             </Link>
           </div>

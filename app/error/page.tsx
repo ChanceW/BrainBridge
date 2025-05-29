@@ -19,8 +19,8 @@ function ErrorPageContent() {
       <div className="max-w-md w-full text-center">
         <Link href="/" className="inline-block mb-8">
           <Image
-            src="/BB_Logo.svg"
-            alt="BrainBridge Logo"
+            src="/BG_Logo.svg"
+            alt="BrainGym Logo"
             width={80}
             height={80}
             className="mx-auto"

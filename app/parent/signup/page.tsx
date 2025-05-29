@@ -71,8 +71,8 @@ export default function ParentSignup() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/BB_Logo.svg"
-              alt="BrainBridge Logo"
+              src="/BG_Logo.svg"
+              alt="BrainGym Logo"
               width={80}
               height={80}
               className="mx-auto mb-4"
@@ -82,7 +82,7 @@ export default function ParentSignup() {
             Create Parent Account
           </h1>
           <p className="text-gray-600">
-            Join BrainBridge to support your child's learning journey
+            Join BrainGym to support your child's learning journey
           </p>
         </div>
 

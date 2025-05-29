@@ -1,6 +1,6 @@
-# BrainBridge 🧠
+# BrainGym 🧠
 
-BrainBridge is an innovative educational platform that generates personalized, themed worksheets for students. It combines academic subjects with students' interests to create engaging learning experiences.
+BrainGym is an innovative educational platform that generates personalized, themed worksheets for students. It combines academic subjects with students' interests to create engaging learning experiences.
 
 ## Features ✨
 
@@ -32,8 +32,8 @@ BrainBridge is an innovative educational platform that generates personalized, t
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/brainbridge.git
-cd brainbridge
+git clone https://github.com/yourusername/braingym.git
+cd braingym
 ```
 
 2. Install dependencies:
@@ -66,7 +66,7 @@ The application will be available at `http://localhost:3000`.
 ## Project Structure 📁
 
 ```
-BrainBridge/
+BrainGym/
 ├── app/                    # Next.js app directory
 │   ├── api/               # API routes
 │   ├── components/        # Reusable components
@@ -115,6 +115,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments 🙏
 
-- Thanks to all contributors who have helped shape BrainBridge
+- Thanks to all contributors who have helped shape BrainGym
 - Special thanks to educators who provided valuable feedback
 - Inspired by the need for engaging, personalized education 

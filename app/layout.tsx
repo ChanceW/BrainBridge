@@ -2,7 +2,7 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata = {
-  title: 'BrainBridge - Personalized Learning Platform',
+  title: 'BrainGym - Personalized Learning Platform',
   description: 'AI-powered educational platform providing personalized daily worksheets for students in grades 1-12.',
 }
 

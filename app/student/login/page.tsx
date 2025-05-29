@@ -70,8 +70,8 @@ function StudentLoginContent() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/BB_Logo.svg"
-              alt="BrainBridge Logo"
+              src="/BG_Logo.svg"
+              alt="BrainGym Logo"
               width={80}
               height={80}
               className="mx-auto mb-4"
