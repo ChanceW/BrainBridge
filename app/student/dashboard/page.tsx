@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Navigation from '@/app/components/Navigation'
 
 interface Question {
@@ -28,7 +28,8 @@ interface Worksheet {
   completedAt?: string
 }
 
-export default function StudentDashboard() {
+// Create a client component that uses useSearchParams
+function StudentDashboardContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -307,5 +308,20 @@ export default function StudentDashboard() {
         </div>
       </main>
     </>
+  )
+}
+
+export default function StudentDashboard() {
+  return (
+    <Suspense fallback={
+      <>
+        <Navigation />
+        <main className="min-h-screen p-8">
+          <div className="text-center">Loading...</div>
+        </main>
+      </>
+    }>
+      <StudentDashboardContent />
+    </Suspense>
   )
 } 

@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function ParentLogin() {
+// Create a client component that uses useSearchParams
+function ParentLoginContent() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
@@ -59,15 +60,6 @@ export default function ParentLogin() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  // Show loading state while checking session
-  if (status === 'loading') {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-center">Loading...</div>
-      </main>
-    )
   }
 
   return (
@@ -193,5 +185,17 @@ export default function ParentLogin() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function ParentLogin() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </main>
+    }>
+      <ParentLoginContent />
+    </Suspense>
   )
 } 
