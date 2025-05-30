@@ -525,6 +525,12 @@ export default function ParentDashboard() {
                                   Score: {worksheet.score}%
                                 </p>
                               )}
+                              <button
+                                onClick={() => router.push(`/parent/worksheet/${worksheet.id}`)}
+                                className="mt-2 btn-secondary text-sm"
+                              >
+                                Review Worksheet
+                              </button>
                             </div>
                           </div>
                         ))}

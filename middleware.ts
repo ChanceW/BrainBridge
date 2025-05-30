@@ -37,7 +37,8 @@ export default withAuth(
         loginUrl.searchParams.set('callbackUrl', path)
         return NextResponse.redirect(loginUrl)
       }
-      if (token.role !== 'student') {
+      // Allow parent access to worksheet review pages
+      if (token.role !== 'student' && !path.startsWith('/student/worksheet/')) {
         return NextResponse.redirect(new URL('/', req.url))
       }
     }

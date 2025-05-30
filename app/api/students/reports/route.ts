@@ -45,6 +45,9 @@ export async function GET() {
               select: {
                 id: true,
                 content: true,
+                options: true,
+                answer: true,
+                explanation: true,
                 studentAnswer: true,
                 isCorrect: true
               }

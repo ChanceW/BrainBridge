@@ -48,26 +48,23 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     if (status === 'unauthenticated') {
       router.push('/student/login')
     } else if (status === 'authenticated') {
-      fetchWorksheet()
+      if (session.user.role === 'student' || session.user.role === 'parent') {
+        fetchWorksheet()
+      } else {
+        router.push('/')
+      }
     }
-  }, [status, router, params.id])
+  }, [status, router, params.id, session?.user?.role])
 
   const fetchWorksheet = async () => {
     try {
-      const response = await fetch('/api/worksheets')
+      const response = await fetch(`/api/worksheets/${params.id}`)
       const data = await response.json()
       
       if (response.ok) {
-        const foundWorksheet = [...(data.previousWorksheets || []), data.currentWorksheet]
-          .find(w => w?.id === params.id)
-        
-        if (foundWorksheet) {
-          setWorksheet(foundWorksheet)
-          // Initialize answers with saved student answers or empty strings
-          setAnswers(foundWorksheet.questions.map((q: Question) => q.studentAnswer || ''))
-        } else {
-          setError('Worksheet not found')
-        }
+        setWorksheet(data)
+        // Initialize answers with saved student answers or empty strings
+        setAnswers(data.questions.map((q: Question) => q.studentAnswer || ''))
       } else {
         setError(data.error || 'Failed to fetch worksheet')
       }
@@ -231,6 +228,10 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     } catch (error) {
       setError('Failed to start worksheet')
     }
+  }
+
+  const canEdit = () => {
+    return session?.user?.role === 'student' && worksheet?.status !== 'COMPLETED'
   }
 
   if (status === 'loading' || loading) {
@@ -448,232 +449,226 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
     <>
       <Navigation />
       <main className="min-h-screen p-8">
-        <div className="flex gap-6 max-w-6xl mx-auto">
-          {/* Question Navigation Sidebar */}
-          <div className="w-64 bg-white rounded-lg shadow-md p-4 h-fit sticky top-8">
-            <h3 className="font-bold mb-4">Questions</h3>
-            <div className="grid grid-cols-4 gap-2">
-              {worksheet.questions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                  className={`
-                    relative w-full aspect-square rounded-lg text-sm font-medium
-                    flex items-center justify-center transition-colors
-                    ${currentQuestionIndex === index 
-                      ? 'border-b-2 border-bg-blue-dark text-bg-blue-dark bg-white' 
-                      : answers[index]
-                        ? 'bg-bg-blue bg-opacity-20 text-bg-blue-dark'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }
-                  `}
-                  title={`Question ${index + 1}${answers[index] ? ' (Answered)' : ''}`}
-                >
-                  {index + 1}
-                  {answers[index] && (
-                    <svg 
-                      className="absolute -top-1 -right-1 w-3 h-3 text-green-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={3}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+        <div className="max-w-4xl mx-auto">
+          {error && (
+            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+              {error}
+            </div>
+          )}
+
+          {worksheet && (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold mb-2">{worksheet.title}</h1>
+                  <p className="text-gray-600 mb-1">{worksheet.description}</p>
+                  <p className="text-sm text-gray-500">
+                    Subject: {worksheet.subject} | Grade: {worksheet.grade}
+                  </p>
+                  {worksheet.status === 'COMPLETED' && worksheet.score !== undefined && (
+                    <p className="text-sm font-semibold mt-2 text-green-600">
+                      Score: {worksheet.score}%
+                    </p>
                   )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Header with Exit and Reset buttons */}
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-serif font-bold">
-                {worksheet.title}
-              </h1>
-              <div className="flex gap-4">
-                {!isReview && (
-                  <button
-                    onClick={() => setShowExitConfirm(true)}
-                    className="btn-secondary"
-                  >
-                    Save & Exit
-                  </button>
-                )}
-                {isReview && (
-                  <button
-                    onClick={() => setShowResetConfirm(true)}
-                    className="btn-secondary"
-                  >
-                    Reset Worksheet
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <p className="text-gray-600 mb-8">{worksheet.description}</p>
-
-            {error && (
-              <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
-                {error}
-              </div>
-            )}
-
-            <div>
-              {/* Progress Bar */}
-              <div className="mb-6">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
-                  <span>{Math.round(((currentQuestionIndex + 1) / worksheet.questions.length) * 100)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-bg-blue rounded-full h-2 transition-all duration-300"
-                    style={{ width: `${((currentQuestionIndex + 1) / worksheet.questions.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Question */}
-              <div>
-                <h2 className="text-xl font-bold mb-4">{currentQuestion.content}</h2>
-                <div className="space-y-3">
-                  {currentQuestion.options.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => !isReview && handleAnswer(option)}
-                      className={`w-full p-4 text-left rounded-lg border transition-colors ${
-                        answers[currentQuestionIndex] === option
-                          ? isReview
-                            ? currentQuestion.isCorrect
-                              ? 'bg-green-100 border-green-500'
-                              : 'bg-red-100 border-red-500'
-                            : 'bg-bg-blue bg-opacity-20 border-bg-blue-dark'
-                          : isReview && option === currentQuestion.answer
-                          ? 'bg-green-100 border-green-500'
-                          : 'border-gray-200 hover:border-bg-blue-dark'
-                      }`}
-                      disabled={isReview}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Show explanation in review mode */}
-                {isReview && (
-                  <div className="mt-6 p-4 bg-bg-blue bg-opacity-10 rounded-lg">
-                    <h3 className="font-semibold mb-2">Explanation:</h3>
-                    <p>{currentQuestion.explanation}</p>
-                    {currentQuestion.studentAnswer && (
-                      <p className="mt-2 text-gray-600">
-                        Your answer: {currentQuestion.studentAnswer}
-                        {currentQuestion.isCorrect 
-                          ? ' ✓' 
-                          : ` ✗ (Correct answer: ${currentQuestion.answer})`}
-                      </p>
+                {session?.user?.role === 'student' && (
+                  <div className="flex gap-2">
+                    {worksheet.status === 'NOT_STARTED' && (
+                      <button
+                        onClick={handleStart}
+                        className="btn-primary"
+                      >
+                        Start Worksheet
+                      </button>
+                    )}
+                    {worksheet.status === 'IN_PROGRESS' && (
+                      <>
+                        <button
+                          onClick={() => setShowExitConfirm(true)}
+                          className="btn-secondary"
+                        >
+                          Save & Exit
+                        </button>
+                        <button
+                          onClick={() => setShowSubmitConfirm(true)}
+                          className="btn-primary"
+                          disabled={answers.some(answer => answer === '')}
+                        >
+                          Submit
+                        </button>
+                      </>
+                    )}
+                    {worksheet.status === 'COMPLETED' && (
+                      <button
+                        onClick={() => setShowResetConfirm(true)}
+                        className="btn-secondary"
+                      >
+                        Redo Worksheet
+                      </button>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between mt-8">
-                <button
-                  onClick={handlePrevious}
-                  disabled={currentQuestionIndex === 0}
-                  className="btn-secondary px-6"
-                >
-                  Previous
-                </button>
-
-                {isLastQuestion ? (
-                  !isReview && (
-                    <button
-                      onClick={() => setShowSubmitConfirm(true)}
-                      className="btn-primary px-6"
-                      disabled={isSubmitting || !hasAnsweredAll}
+              {worksheet.status !== 'NOT_STARTED' && (
+                <div className="space-y-6">
+                  {worksheet.questions.map((question, index) => (
+                    <div
+                      key={question.id}
+                      className={`p-4 rounded-lg ${
+                        index === currentQuestionIndex ? 'bg-blue-50' : 'bg-gray-50'
+                      }`}
                     >
-                      {isSubmitting ? 'Submitting...' : 'Submit'}
-                    </button>
-                  )
-                ) : (
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium">Question {index + 1}</h3>
+                        {worksheet.status === 'COMPLETED' && (
+                          <span className={`text-sm font-medium ${
+                            question.isCorrect ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {question.isCorrect ? 'Correct' : 'Incorrect'}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mb-4">{question.content}</p>
+                      <div className="space-y-2">
+                        {question.options.map((option) => (
+                          <label
+                            key={option}
+                            className={`block p-3 rounded-lg border ${
+                              worksheet.status === 'COMPLETED'
+                                ? option === question.answer
+                                  ? 'bg-green-100 border-green-500'
+                                  : option === question.studentAnswer && !question.isCorrect
+                                  ? 'bg-red-100 border-red-500'
+                                  : 'bg-gray-50 border-gray-200'
+                                : answers[index] === option
+                                ? 'bg-blue-100 border-blue-500'
+                                : 'bg-gray-50 border-gray-200'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name={`question-${question.id}`}
+                              value={option}
+                              checked={answers[index] === option}
+                              onChange={() => canEdit() && handleAnswer(option)}
+                              disabled={!canEdit()}
+                              className="mr-2"
+                            />
+                            {option}
+                          </label>
+                        ))}
+                      </div>
+                      {worksheet.status === 'COMPLETED' && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                          <p className="font-medium text-gray-700">Explanation:</p>
+                          <p className="text-gray-600">{question.explanation}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {worksheet.status === 'IN_PROGRESS' && canEdit() && (
+                    <div className="flex justify-between mt-6">
+                      <button
+                        onClick={handlePrevious}
+                        disabled={currentQuestionIndex === 0}
+                        className="btn-secondary"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={handleNext}
+                        disabled={currentQuestionIndex === worksheet.questions.length - 1}
+                        className="btn-secondary"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Confirmation Dialogs */}
+          {showExitConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <h3 className="text-lg font-bold mb-4">Save and Exit?</h3>
+                <p className="text-gray-600 mb-6">
+                  Your progress will be saved. You can continue later.
+                </p>
+                <div className="flex justify-end gap-2">
                   <button
-                    onClick={handleNext}
-                    className="btn-primary px-6"
+                    onClick={() => setShowExitConfirm(false)}
+                    className="btn-secondary"
                   >
-                    Next
+                    Cancel
                   </button>
-                )}
+                  <button
+                    onClick={handleExit}
+                    disabled={isSaving}
+                    className="btn-primary"
+                  >
+                    {isSaving ? 'Saving...' : 'Save & Exit'}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {showSubmitConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <h3 className="text-lg font-bold mb-4">Submit Worksheet?</h3>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to submit your answers? You won't be able to change them after submission.
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowSubmitConfirm(false)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="btn-primary"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showResetConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <h3 className="text-lg font-bold mb-4">Reset Worksheet?</h3>
+                <p className="text-gray-600 mb-6">
+                  This will clear all your answers and allow you to start over. Are you sure?
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowResetConfirm(false)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    className="btn-primary"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Exit Confirmation Modal */}
-        {showExitConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold mb-4">Save Progress & Exit?</h3>
-              <p className="text-gray-600 mb-6">
-                Your progress will be saved and you can continue later.
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowExitConfirm(false)}
-                  className="btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleExit}
-                  className="btn-primary"
-                  disabled={isSaving}
-                >
-                  {isSaving ? 'Saving...' : 'Save & Exit'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Submit Confirmation Modal */}
-        {showSubmitConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold mb-4">Submit Worksheet?</h3>
-              <p className="text-gray-600 mb-6">
-                Are you sure you want to submit your worksheet? This action cannot be undone.
-                {!hasAnsweredAll && (
-                  <span className="block text-red-600 mt-2">
-                    Please answer all questions before submitting.
-                  </span>
-                )}
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowSubmitConfirm(false)}
-                  className="btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  className="btn-primary"
-                  disabled={isSubmitting || !hasAnsweredAll}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Worksheet'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </>
   )
