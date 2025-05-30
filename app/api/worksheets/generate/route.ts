@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 })
     }
 
-    // Check if there's already a worksheet for today (completed or not)
+    // Check if there's already an incomplete worksheet for today
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
@@ -74,16 +74,19 @@ export async function POST(request: Request) {
         createdAt: {
           gte: today,
         },
+        status: {
+          not: 'COMPLETED'
+        }
       },
     })
 
     // Get the force parameter from the request
     const { force } = await request.json().catch(() => ({}))
     
-    // Only allow generation if force is true or no worksheet exists for today
+    // Only allow generation if force is true or no incomplete worksheet exists for today
     if (existingWorksheet && !force) {
       return NextResponse.json(
-        { error: 'A worksheet already exists for today. Complete it first or use the "Generate New Worksheet" button.' },
+        { error: 'You have an incomplete worksheet for today. Please complete it first or use the "Generate New Worksheet" button.' },
         { status: 400 }
       )
     }

@@ -138,9 +138,9 @@ export default function ParentDashboard() {
 
     try {
       const response = await fetch('/api/students/reset-password', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: studentId, newPassword })
+        body: JSON.stringify({ id: studentId, password: newPassword })
       })
 
       if (!response.ok) {

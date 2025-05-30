@@ -82,14 +82,19 @@ export async function GET() {
     })
 
     // Separate current and previous worksheets
+    // Current worksheet is the most recent incomplete worksheet from today
     const currentWorksheet = worksheets.find((w) => 
-      w.createdAt.toDateString() === new Date().toDateString() && 
-      w.status !== 'COMPLETED'
+      w.status !== 'COMPLETED' && 
+      w.createdAt.toDateString() === new Date().toDateString()
     )
     
+    // Previous worksheets are all completed worksheets plus any worksheets from other days
     const previousWorksheets = worksheets.filter((w) => 
-      w.createdAt.toDateString() !== new Date().toDateString() ||
-      w.status === 'COMPLETED'
+      // Include if:
+      // 1. Worksheet is completed, OR
+      // 2. Worksheet is from a different day
+      w.status === 'COMPLETED' || 
+      w.createdAt.toDateString() !== new Date().toDateString()
     )
 
     return NextResponse.json({
@@ -156,6 +161,7 @@ export async function PUT(request: Request) {
         question.answer === answers[index]
       ).length
       score = Math.round((correctAnswers / totalQuestions) * 100)
+      console.log('Calculated score:', score, 'for worksheet:', worksheetId)
     }
 
     // If resetting the worksheet, clear all progress

@@ -51,9 +51,11 @@ function StudentDashboardContent() {
   }, [status, router])
 
   useEffect(() => {
-    // Show success message if worksheet was just submitted
+    // Show success message and refresh worksheets if worksheet was just submitted
     if (searchParams.get('submitted') === 'true') {
+      console.log('Worksheet submitted, refreshing...')
       setShowSuccess(true)
+      fetchWorksheets() // Refresh the worksheet list
       // Hide success message after 5 seconds
       const timer = setTimeout(() => setShowSuccess(false), 5000)
       return () => clearTimeout(timer)
@@ -62,29 +64,23 @@ function StudentDashboardContent() {
 
   const fetchWorksheets = async () => {
     try {
+      console.log('Fetching worksheets...')
       const response = await fetch('/api/worksheets')
       const data = await response.json()
       
       if (response.ok) {
+        console.log('Worksheets fetched:', {
+          current: data.currentWorksheet,
+          previous: data.previousWorksheets
+        })
         setCurrentWorksheet(data.currentWorksheet)
         setPreviousWorksheets(data.previousWorksheets)
-
-        // Only generate a new worksheet if:
-        // 1. No current worksheet exists
-        // 2. We're not already in the process of generating one
-        // 3. This is not a recursive call from generateNewWorksheet
-        if (!data.currentWorksheet && !isGeneratingWorksheet && !generating) {
-          setIsGeneratingWorksheet(true)
-          try {
-            await generateNewWorksheet(false)
-          } finally {
-            setIsGeneratingWorksheet(false)
-          }
-        }
       } else {
+        console.error('Failed to fetch worksheets:', data.error)
         setError(data.error || 'Failed to fetch worksheets')
       }
     } catch (error) {
+      console.error('Error fetching worksheets:', error)
       setError('Failed to fetch worksheets')
     } finally {
       setLoading(false)

@@ -140,6 +140,13 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
 
     setIsSubmitting(true)
     try {
+      console.log('Submitting worksheet:', {
+        worksheetId: worksheet.id,
+        status: 'COMPLETED',
+        answers,
+        hasAnsweredAll: answers.every(answer => answer !== '')
+      })
+
       const response = await fetch('/api/worksheets', {
         method: 'PUT',
         headers: {
@@ -154,14 +161,17 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Worksheet submission response:', data)
         setWorksheet({ ...worksheet, ...data })
         setShowSubmitConfirm(false)
         router.push('/student/dashboard?submitted=true')
       } else {
         const data = await response.json()
+        console.error('Failed to submit worksheet:', data)
         setError(data.error || 'Failed to submit worksheet')
       }
     } catch (error) {
+      console.error('Error submitting worksheet:', error)
       setError('Failed to submit worksheet')
     } finally {
       setIsSubmitting(false)
