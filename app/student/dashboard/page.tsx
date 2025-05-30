@@ -39,6 +39,7 @@ export default function StudentDashboard() {
   const [error, setError] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
   const [redoingWorksheet, setRedoingWorksheet] = useState<string | null>(null)
+  const [isGeneratingWorksheet, setIsGeneratingWorksheet] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -67,9 +68,17 @@ export default function StudentDashboard() {
         setCurrentWorksheet(data.currentWorksheet)
         setPreviousWorksheets(data.previousWorksheets)
 
-        // If no worksheet exists for today, automatically generate one
-        if (!data.currentWorksheet) {
-          await generateNewWorksheet(false) // Don't force generation on first load
+        // Only generate a new worksheet if:
+        // 1. No current worksheet exists
+        // 2. We're not already in the process of generating one
+        // 3. This is not a recursive call from generateNewWorksheet
+        if (!data.currentWorksheet && !isGeneratingWorksheet && !generating) {
+          setIsGeneratingWorksheet(true)
+          try {
+            await generateNewWorksheet(false)
+          } finally {
+            setIsGeneratingWorksheet(false)
+          }
         }
       } else {
         setError(data.error || 'Failed to fetch worksheets')
