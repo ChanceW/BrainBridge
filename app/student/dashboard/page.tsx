@@ -66,6 +66,11 @@ export default function StudentDashboard() {
       if (response.ok) {
         setCurrentWorksheet(data.currentWorksheet)
         setPreviousWorksheets(data.previousWorksheets)
+
+        // If no worksheet exists for today, automatically generate one
+        if (!data.currentWorksheet) {
+          await generateNewWorksheet(false) // Don't force generation on first load
+        }
       } else {
         setError(data.error || 'Failed to fetch worksheets')
       }
@@ -76,11 +81,15 @@ export default function StudentDashboard() {
     }
   }
 
-  const generateNewWorksheet = async () => {
+  const generateNewWorksheet = async (force: boolean = false) => {
     setGenerating(true)
     try {
       const response = await fetch('/api/worksheets/generate', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ force }),
       })
 
       if (response.ok) {
@@ -196,7 +205,7 @@ export default function StudentDashboard() {
                   </div>
                   {currentWorksheet.status === 'COMPLETED' ? (
                     <button
-                      onClick={generateNewWorksheet}
+                      onClick={() => generateNewWorksheet(true)}
                       disabled={generating}
                       className="btn-primary"
                     >
@@ -226,7 +235,7 @@ export default function StudentDashboard() {
               <div className="bg-gray-50 rounded-lg p-6 text-center">
                 <p className="text-gray-600 mb-4">No worksheet available for today.</p>
                 <button
-                  onClick={generateNewWorksheet}
+                  onClick={() => generateNewWorksheet(false)}
                   disabled={generating}
                   className="btn-primary"
                 >

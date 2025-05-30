@@ -47,7 +47,7 @@ async function generateWorksheetQuestions(student: any) {
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
@@ -64,7 +64,7 @@ export async function POST() {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 })
     }
 
-    // Check if there's already an incomplete worksheet for today
+    // Check if there's already a worksheet for today (completed or not)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
@@ -74,15 +74,16 @@ export async function POST() {
         createdAt: {
           gte: today,
         },
-        status: {
-          not: 'COMPLETED',
-        },
       },
     })
 
-    if (existingWorksheet) {
+    // Get the force parameter from the request
+    const { force } = await request.json().catch(() => ({}))
+    
+    // Only allow generation if force is true or no worksheet exists for today
+    if (existingWorksheet && !force) {
       return NextResponse.json(
-        { error: 'Incomplete worksheet already exists for today' },
+        { error: 'A worksheet already exists for today. Complete it first or use the "Generate New Worksheet" button.' },
         { status: 400 }
       )
     }

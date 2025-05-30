@@ -24,6 +24,7 @@ export default function AddStudent() {
     categories: [] as string[],
     interests: [] as string[],
   })
+  const [newInterest, setNewInterest] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -33,6 +34,29 @@ export default function AddStudent() {
       categories: checked
         ? [...prev.categories, category]
         : prev.categories.filter(c => c !== category)
+    }))
+  }
+
+  const handleAddInterest = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newInterest.trim()) {
+      e.preventDefault()
+      const trimmedInterest = newInterest.trim()
+      
+      // Don't add duplicate interests
+      if (!formData.interests.includes(trimmedInterest)) {
+        setFormData(prev => ({
+          ...prev,
+          interests: [...prev.interests, trimmedInterest]
+        }))
+      }
+      setNewInterest('')
+    }
+  }
+
+  const handleRemoveInterest = (interestToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: prev.interests.filter(interest => interest !== interestToRemove)
     }))
   }
 
@@ -162,20 +186,45 @@ export default function AddStudent() {
               </div>
 
               <div>
-                <label htmlFor="interests" className="block text-sm font-medium text-gray-700 mb-1">
-                  Interests (comma-separated)
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Interests
                 </label>
-                <input
-                  id="interests"
-                  type="text"
-                  value={formData.interests.join(', ')}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    interests: e.target.value.split(',').map(s => s.trim())
-                  })}
-                  className="input-field w-full"
-                  placeholder="e.g. Space, Animals, Music"
-                />
+                <div className="space-y-3">
+                  {/* Interest Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {formData.interests.map((interest) => (
+                      <div
+                        key={interest}
+                        className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        <span>{interest}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveInterest(interest)}
+                          className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Add Interest Input */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newInterest}
+                      onChange={(e) => setNewInterest(e.target.value)}
+                      onKeyDown={handleAddInterest}
+                      placeholder="Type an interest and press Enter"
+                      className="input-field w-full pr-24"
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                      Press Enter to add
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2 pt-4">
