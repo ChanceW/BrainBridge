@@ -10,7 +10,7 @@ export default function Home() {
           <div className="text-center">
             <div className="mb-8 relative">
               <Image
-                src="/thinkDrillslogo.png"
+                src="/ThinkDrillsLogo.png"
                 alt="ThinkDrills Logo"
                 width={300}
                 height={300}
@@ -20,7 +20,7 @@ export default function Home() {
             </div>
             
             <h1 className="text-5xl font-serif font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-              Welcome to Students
+              Welcome Students
             </h1>
             
             <p className="text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">

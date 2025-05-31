@@ -66,7 +66,7 @@ function StudentLoginContent() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/thinkDrillslogo.png"
+              src="/ThinkDrillsLogo.png"
               alt="ThinkDrills Logo"
               width={200}
               height={200}

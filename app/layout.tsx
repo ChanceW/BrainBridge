@@ -5,12 +5,12 @@ export const metadata = {
   title: 'ThinkDrills - Personalized Learning Platform',
   description: 'AI-powered educational platform providing personalized daily worksheets for students in grades 1-12.',
   icons: {
-    icon: '/thinkDrillslogo.png',
-    shortcut: '/thinkDrillslogo.png',
-    apple: '/thinkDrillslogo.png',
+    icon: '/ThinkDrillsLogo.png',
+    shortcut: '/ThinkDrillsLogo.png',
+    apple: '/ThinkDrillsLogo.png',
     other: {
       rel: 'apple-touch-icon',
-      url: '/thinkDrillslogo.png',
+      url: '/ThinkDrillsLogo.png',
     },
   },
 }
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/thinkDrillslogo.png" />
+        <link rel="icon" href="/ThinkDrillsLogo.png" />
       </head>
       <body>
         <Providers>

@@ -19,7 +19,7 @@ function ErrorPageContent() {
       <div className="max-w-md w-full text-center">
         <Link href="/" className="inline-block mb-8">
           <Image
-            src="/thinkDrillslogo.png"
+            src="/ThinkDrillsLogo.png"
             alt="ThinkDrills Logo"
             width={200}
             height={200}
