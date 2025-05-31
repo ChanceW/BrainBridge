@@ -68,8 +68,8 @@ function ParentLoginContent() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image
-              src="/BrainGym_Logo_Cropped.png"
-              alt="BrainGym Logo"
+              src="/thinkDrillslogo.png"
+              alt="ThinkDrills Logo"
               width={200}
               height={200}
               className="mx-auto mb-4"

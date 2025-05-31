@@ -10,8 +10,8 @@ export default function Home() {
           <div className="text-center">
             <div className="mb-8 relative">
               <Image
-                src="/BrainGym_Logo_Cropped.png"
-                alt="BrainGym Logo"
+                src="/thinkDrillslogo.png"
+                alt="ThinkDrills Logo"
                 width={300}
                 height={300}
                 className="mx-auto"
@@ -20,7 +20,7 @@ export default function Home() {
             </div>
             
             <h1 className="text-5xl font-serif font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-              Welcome to BrainGym
+              Welcome to Students
             </h1>
             
             <p className="text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -57,7 +57,7 @@ export default function Home() {
       <section className="py-16 bg-bg-blue">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-serif font-bold text-center mb-12">
-            Why Choose BrainGym?
+            Why Choose ThinkDrills?
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
@@ -185,7 +185,7 @@ export default function Home() {
             Ready to Start Learning?
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            Join BrainGym today and discover a new way of learning that's tailored just for you.
+            Join ThinkDrills today and discover a new way of learning that's tailored just for you.
           </p>
           <div className="flex gap-4 justify-center">
             <Link 

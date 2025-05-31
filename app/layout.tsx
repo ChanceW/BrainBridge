@@ -2,15 +2,15 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata = {
-  title: 'BrainGym - Personalized Learning Platform',
+  title: 'ThinkDrills - Personalized Learning Platform',
   description: 'AI-powered educational platform providing personalized daily worksheets for students in grades 1-12.',
   icons: {
-    icon: '/BrainGym_Logo_Cropped.png',
-    shortcut: '/BrainGym_Logo_Cropped.png',
-    apple: '/BrainGym_Logo_Cropped.png',
+    icon: '/thinkDrillslogo.png',
+    shortcut: '/thinkDrillslogo.png',
+    apple: '/thinkDrillslogo.png',
     other: {
       rel: 'apple-touch-icon',
-      url: '/BrainGym_Logo_Cropped.png',
+      url: '/thinkDrillslogo.png',
     },
   },
 }
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/BrainGym_Logo_Cropped.png" />
+        <link rel="icon" href="/thinkDrillslogo.png" />
       </head>
       <body>
         <Providers>

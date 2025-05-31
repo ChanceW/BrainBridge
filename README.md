@@ -1,6 +1,6 @@
-# BrainGym 🧠
+# ThinkDrills 🧠
 
-BrainGym is an innovative educational platform that generates personalized, themed worksheets for students. It combines academic subjects with students' interests to create engaging learning experiences.
+ThinkDrills is an innovative educational platform that generates personalized, themed worksheets for students. It combines academic subjects with students' interests to create engaging learning experiences.
 
 ## Features ✨
 
@@ -63,10 +63,10 @@ yarn dev
 
 The application will be available at `http://localhost:3000`.
 
-## Project Structure 📁
+## Project Structure ��
 
 ```
-BrainGym/
+ThinkDrills/
 ├── app/                    # Next.js app directory
 │   ├── api/               # API routes
 │   ├── components/        # Reusable components
@@ -115,6 +115,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments 🙏
 
-- Thanks to all contributors who have helped shape BrainGym
+- Thanks to all contributors who have helped shape ThinkDrills
 - Special thanks to educators who provided valuable feedback
 - Inspired by the need for engaging, personalized education 

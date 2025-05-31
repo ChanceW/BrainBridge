@@ -15,8 +15,8 @@ export default function Navigation() {
             <Link href="/" className="flex items-center">
               <div className="relative w-[150px] h-[60px]">
                 <Image
-                  src="/BrainGym_Logo_Cropped.png"
-                  alt="BrainGym Logo"
+                  src="/thinkDrillslogo.png"
+                  alt="ThinkDrills Logo"
                   fill
                   className="object-contain"
                 />
