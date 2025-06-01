@@ -70,7 +70,7 @@ function StudentLoginContent() {
               alt="ThinkDrills Logo"
               width={200}
               height={200}
-              className="mx-auto mb-4"
+              className="mx-auto mb-4 rounded-[15px]"
             />
           </Link>
           <h1 className="text-3xl font-serif font-bold mb-2">

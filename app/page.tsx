@@ -14,7 +14,7 @@ export default function Home() {
                 alt="ThinkDrills Logo"
                 width={300}
                 height={300}
-                className="mx-auto"
+                className="mx-auto rounded-[15px]"
                 priority
               />
             </div>

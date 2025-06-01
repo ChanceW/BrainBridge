@@ -23,7 +23,7 @@ function ErrorPageContent() {
             alt="ThinkDrills Logo"
             width={200}
             height={200}
-            className="mx-auto"
+            className="mx-auto rounded-[15px]"
           />
         </Link>
 
