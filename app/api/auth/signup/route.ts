@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { hash } from 'bcryptjs'
 import { z } from 'zod'
-
-const prisma = new PrismaClient()
 
 // Input validation schema
 const signupSchema = z.object({
