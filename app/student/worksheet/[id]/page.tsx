@@ -220,6 +220,8 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
       })
 
       if (response.ok) {
+        const data = await response.json()
+        setWorksheet(data)
         setHasStarted(true)
       } else {
         const data = await response.json()
@@ -471,103 +473,122 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                     </p>
                   )}
                 </div>
-                {session?.user?.role === 'student' && (
-                  <div className="flex gap-2">
-                    {worksheet.status === 'NOT_STARTED' && (
+                <div className="flex gap-2">
+                  {worksheet.status === 'NOT_STARTED' && (
+                    <button
+                      onClick={handleStart}
+                      className="btn-primary"
+                    >
+                      Start Worksheet
+                    </button>
+                  )}
+                  {worksheet.status === 'IN_PROGRESS' && (
+                    <>
                       <button
-                        onClick={handleStart}
-                        className="btn-primary"
-                      >
-                        Start Worksheet
-                      </button>
-                    )}
-                    {worksheet.status === 'IN_PROGRESS' && (
-                      <>
-                        <button
-                          onClick={() => setShowExitConfirm(true)}
-                          className="btn-secondary"
-                        >
-                          Save & Exit
-                        </button>
-                        <button
-                          onClick={() => setShowSubmitConfirm(true)}
-                          className="btn-primary"
-                          disabled={answers.some(answer => answer === '')}
-                        >
-                          Submit
-                        </button>
-                      </>
-                    )}
-                    {worksheet.status === 'COMPLETED' && (
-                      <button
-                        onClick={() => setShowResetConfirm(true)}
+                        onClick={() => setShowExitConfirm(true)}
                         className="btn-secondary"
                       >
-                        Redo Worksheet
+                        Save & Exit
                       </button>
-                    )}
-                  </div>
-                )}
+                      <button
+                        onClick={() => setShowSubmitConfirm(true)}
+                        className="btn-primary"
+                        disabled={answers.some(answer => answer === '')}
+                      >
+                        Submit
+                      </button>
+                    </>
+                  )}
+                  {worksheet.status === 'COMPLETED' && (
+                    <button
+                      onClick={() => setShowResetConfirm(true)}
+                      className="btn-secondary"
+                    >
+                      Redo Worksheet
+                    </button>
+                  )}
+                </div>
               </div>
 
               {worksheet.status !== 'NOT_STARTED' && (
                 <div className="space-y-6">
-                  {worksheet.questions.map((question, index) => (
-                    <div
-                      key={question.id}
-                      className={`p-4 rounded-lg ${
-                        index === currentQuestionIndex ? 'bg-blue-50' : 'bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium">Question {index + 1}</h3>
-                        {worksheet.status === 'COMPLETED' && (
-                          <span className={`text-sm font-medium ${
-                            question.isCorrect ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            {question.isCorrect ? 'Correct' : 'Incorrect'}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mb-4">{question.content}</p>
-                      <div className="space-y-2">
-                        {question.options.map((option) => (
-                          <label
-                            key={option}
-                            className={`block p-3 rounded-lg border ${
-                              worksheet.status === 'COMPLETED'
-                                ? option === question.answer
-                                  ? 'bg-green-100 border-green-500'
-                                  : option === question.studentAnswer && !question.isCorrect
-                                  ? 'bg-red-100 border-red-500'
-                                  : 'bg-gray-50 border-gray-200'
-                                : answers[index] === option
-                                ? 'bg-blue-100 border-blue-500'
-                                : 'bg-gray-50 border-gray-200'
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name={`question-${question.id}`}
-                              value={option}
-                              checked={answers[index] === option}
-                              onChange={() => canEdit() && handleAnswer(option)}
-                              disabled={!canEdit()}
-                              className="mr-2"
-                            />
-                            {option}
-                          </label>
-                        ))}
-                      </div>
+                  {/* Question Navigation */}
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {worksheet.questions.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentQuestionIndex(index)}
+                          className={`w-8 h-8 rounded-full text-sm font-medium flex items-center justify-center transition-colors ${
+                            currentQuestionIndex === index
+                              ? 'bg-blue-500 text-white'
+                              : answers[index]
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {index + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Current Question */}
+                  <div className="p-6 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="font-medium">Question {currentQuestionIndex + 1}</h3>
                       {worksheet.status === 'COMPLETED' && (
-                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                          <p className="font-medium text-gray-700">Explanation:</p>
-                          <p className="text-gray-600">{question.explanation}</p>
-                        </div>
+                        <span className={`text-sm font-medium ${
+                          worksheet.questions[currentQuestionIndex].isCorrect ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {worksheet.questions[currentQuestionIndex].isCorrect ? 'Correct' : 'Incorrect'}
+                        </span>
                       )}
                     </div>
-                  ))}
+                    <p className="mb-6">{worksheet.questions[currentQuestionIndex].content}</p>
+                    
+                    <div className="space-y-3">
+                      {worksheet.questions[currentQuestionIndex].options.map((option) => (
+                        <label
+                          key={option}
+                          className={`block p-4 rounded-lg border cursor-pointer transition-colors ${
+                            worksheet.status === 'COMPLETED'
+                              ? option === worksheet.questions[currentQuestionIndex].answer
+                                ? 'bg-green-100 border-green-500'
+                                : option === worksheet.questions[currentQuestionIndex].studentAnswer && !worksheet.questions[currentQuestionIndex].isCorrect
+                                ? 'bg-red-100 border-red-500'
+                                : 'bg-gray-50 border-gray-200'
+                              : answers[currentQuestionIndex] === option
+                              ? 'bg-blue-100 border-blue-500'
+                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={`question-${worksheet.questions[currentQuestionIndex].id}`}
+                            value={option}
+                            checked={answers[currentQuestionIndex] === option}
+                            onChange={() => canEdit() && handleAnswer(option)}
+                            disabled={!canEdit()}
+                            className="mr-3"
+                          />
+                          {option}
+                        </label>
+                      ))}
+                    </div>
 
+                    {worksheet.status === 'COMPLETED' && (
+                      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <p className="font-medium text-gray-700">Explanation:</p>
+                        <p className="text-gray-600">{worksheet.questions[currentQuestionIndex].explanation}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Navigation Buttons */}
                   {worksheet.status === 'IN_PROGRESS' && canEdit() && (
                     <div className="flex justify-between mt-6">
                       <button
