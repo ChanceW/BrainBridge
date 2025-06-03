@@ -5,11 +5,14 @@ CREATE TYPE "WorksheetStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED'
 CREATE TABLE "Parent" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "password" TEXT,
     "name" TEXT NOT NULL,
+    "resetToken" TEXT UNIQUE,
+    "resetTokenExpiry" TIMESTAMP(3),
+    "googleId" TEXT UNIQUE,
+    "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "Parent_pkey" PRIMARY KEY ("id")
 );
 
@@ -25,7 +28,6 @@ CREATE TABLE "Student" (
     "parentId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
 
@@ -43,7 +45,6 @@ CREATE TABLE "Worksheet" (
     "completedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "Worksheet_pkey" PRIMARY KEY ("id")
 );
 
@@ -59,7 +60,6 @@ CREATE TABLE "Question" (
     "isCorrect" BOOLEAN,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-
     CONSTRAINT "Question_pkey" PRIMARY KEY ("id")
 );
 
@@ -76,4 +76,4 @@ ALTER TABLE "Student" ADD CONSTRAINT "Student_parentId_fkey" FOREIGN KEY ("paren
 ALTER TABLE "Worksheet" ADD CONSTRAINT "Worksheet_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Question" ADD CONSTRAINT "Question_worksheetId_fkey" FOREIGN KEY ("worksheetId") REFERENCES "Worksheet"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Question" ADD CONSTRAINT "Question_worksheetId_fkey" FOREIGN KEY ("worksheetId") REFERENCES "Worksheet"("id") ON DELETE CASCADE ON UPDATE CASCADE; 
