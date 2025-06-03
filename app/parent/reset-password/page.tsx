@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function ResetPassword() {
+// Client component that uses useSearchParams
+function ResetPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -211,5 +212,18 @@ export default function ResetPassword() {
         </div>
       </div>
     </main>
+  )
+}
+
+// Main page component
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
+        <div className="text-center">Loading...</div>
+      </main>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   )
 } 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Navigation from '@/app/components/Navigation'
 
@@ -49,7 +49,8 @@ interface StudentReport {
   }>
 }
 
-export default function ParentDashboard() {
+// Client component that uses useSearchParams
+function DashboardContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -575,5 +576,21 @@ export default function ParentDashboard() {
         </div>
       </main>
     </>
+  )
+}
+
+// Main page component
+export default function ParentDashboard() {
+  return (
+    <Suspense fallback={
+      <>
+        <Navigation />
+        <main className="min-h-screen p-8">
+          <div className="text-center">Loading...</div>
+        </main>
+      </>
+    }>
+      <DashboardContent />
+    </Suspense>
   )
 } 
