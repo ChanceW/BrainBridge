@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Navigation from '@/app/components/Navigation'
@@ -63,6 +63,8 @@ function DashboardContent() {
   const [success, setSuccess] = useState('')
   const [activeTab, setActiveTab] = useState<'students' | 'reports'>('students')
   const [newInterest, setNewInterest] = useState('')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -216,6 +218,43 @@ function DashboardContent() {
     })
   }
 
+  const handleDeleteAccount = async () => {
+    if (!confirm('Are you absolutely sure you want to delete your account? This action cannot be undone and will delete all your students and their data.')) {
+      return
+    }
+
+    setIsDeleting(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/parent', {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete account')
+      }
+
+      // Sign out and redirect to home page
+      try {
+        await signOut({ 
+          redirect: false,
+          callbackUrl: '/?deleted=true'
+        })
+        router.push('/?deleted=true')
+      } catch (signOutError) {
+        console.error('Error signing out:', signOutError)
+        // Even if signOut fails, we should still redirect
+        router.push('/?deleted=true')
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      setError(error instanceof Error ? error.message : 'Failed to delete account')
+      setIsDeleting(false)
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <>
@@ -279,6 +318,68 @@ function DashboardContent() {
           {success && (
             <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4 text-sm sm:text-base">
               {success}
+            </div>
+          )}
+
+          {/* Account Settings Section */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
+            <div className="space-y-4">
+              <div>
+                <p className="text-gray-600 mb-2">Email: {session?.user?.email}</p>
+                <p className="text-gray-600 mb-4">Name: {session?.user?.name}</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={() => router.push('/parent/forgot-password')}
+                  className="btn-secondary text-sm sm:text-base"
+                >
+                  Change Password
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={isDeleting}
+                  className="text-red-600 hover:text-red-800 text-sm sm:text-base border border-red-600 hover:border-red-800 rounded-lg px-4 py-2 transition-colors"
+                >
+                  {isDeleting ? 'Deleting Account...' : 'Delete Account'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Delete Account Confirmation Modal */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <h3 className="text-xl font-semibold mb-4">Delete Account</h3>
+                <p className="text-gray-600 mb-6">
+                  Are you absolutely sure you want to delete your account? This action cannot be undone and will:
+                </p>
+                <ul className="list-disc list-inside text-gray-600 mb-6 space-y-2">
+                  <li>Delete your parent account</li>
+                  <li>Delete all your students' accounts</li>
+                  <li>Delete all student data and progress</li>
+                </ul>
+                <div className="flex flex-col sm:flex-row gap-2 justify-end">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="btn-secondary text-sm sm:text-base"
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDeleteConfirm(false)
+                      handleDeleteAccount()
+                    }}
+                    disabled={isDeleting}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm sm:text-base transition-colors"
+                  >
+                    {isDeleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
