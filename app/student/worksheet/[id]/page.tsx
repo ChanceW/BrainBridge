@@ -318,7 +318,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
               {/* Analytics Report */}
               <WorksheetAnalytics 
                 questions={worksheet.questions}
@@ -330,7 +330,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
               />
 
               {/* Question Review */}
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold">Question Review</h2>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
