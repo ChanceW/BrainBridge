@@ -524,6 +524,14 @@ export default function ParentDashboard() {
                                 ? `Completed: ${new Date(worksheet.completedAt).toLocaleString()}`
                                 : `Started: ${new Date(worksheet.startedAt!).toLocaleString()}`}
                             </div>
+                            {worksheet.status === 'COMPLETED' && (
+                              <button
+                                onClick={() => router.push(`/parent/worksheet/${worksheet.id}`)}
+                                className="btn-secondary text-xs sm:text-sm whitespace-nowrap"
+                              >
+                                View Analytics
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
