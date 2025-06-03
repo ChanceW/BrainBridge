@@ -9,13 +9,15 @@ generator client {
 }
 
 model Parent {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String
-  students  Student[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  password         String
+  name             String
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
+  students         Student[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model Student {

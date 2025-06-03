@@ -11,6 +11,8 @@ async function main() {
       email: 'parent@example.com',
       password: hashedParentPassword,
       name: 'Test Parent',
+      resetToken: null,
+      resetTokenExpiry: null,
     },
   })
 
