@@ -220,37 +220,39 @@ export default function ParentDashboard() {
   return (
     <>
       <Navigation />
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-4 sm:p-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-serif font-bold">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold">
               Parent Dashboard
             </h1>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setActiveTab('students')}
-                className={`px-4 py-2 rounded-lg ${
-                  activeTab === 'students'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Students
-              </button>
-              <button
-                onClick={() => setActiveTab('reports')}
-                className={`px-4 py-2 rounded-lg ${
-                  activeTab === 'reports'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Reports
-              </button>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => setActiveTab('students')}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm sm:text-base ${
+                    activeTab === 'students'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Students
+                </button>
+                <button
+                  onClick={() => setActiveTab('reports')}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm sm:text-base ${
+                    activeTab === 'reports'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Reports
+                </button>
+              </div>
               {activeTab === 'students' && (
                 <button
                   onClick={() => router.push('/parent/students/add')}
-                  className="btn-primary"
+                  className="btn-primary w-full sm:w-auto text-sm sm:text-base"
                 >
                   Add Student
                 </button>
@@ -259,33 +261,33 @@ export default function ParentDashboard() {
           </div>
 
           {error && (
-            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm sm:text-base">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4">
+            <div className="bg-green-100 text-green-700 p-3 rounded-lg mb-4 text-sm sm:text-base">
               {success}
             </div>
           )}
 
           {activeTab === 'students' ? (
             students.length === 0 ? (
-              <div className="text-center p-8 bg-gray-50 rounded-lg">
-                <p>No students added yet. Add your first student to get started!</p>
+              <div className="text-center p-4 sm:p-8 bg-gray-50 rounded-lg">
+                <p className="text-sm sm:text-base">No students added yet. Add your first student to get started!</p>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
                 {students.map((student) => (
                   <div
                     key={student.id}
-                    className="p-6 bg-white rounded-lg shadow-md"
+                    className="p-4 sm:p-6 bg-white rounded-lg shadow-md"
                   >
                     {editingStudent?.id === student.id ? (
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">Name</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                           <input
                             type="text"
                             value={editingStudent.name}
@@ -293,11 +295,11 @@ export default function ParentDashboard() {
                               ...editingStudent,
                               name: e.target.value
                             })}
-                            className="input-field w-full"
+                            className="input-field w-full text-sm sm:text-base"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">Username</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                           <input
                             type="text"
                             value={editingStudent.userName}
@@ -305,11 +307,11 @@ export default function ParentDashboard() {
                               ...editingStudent,
                               userName: e.target.value
                             })}
-                            className="input-field w-full"
+                            className="input-field w-full text-sm sm:text-base"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">Grade</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Grade</label>
                           <input
                             type="number"
                             value={editingStudent.grade}
@@ -317,7 +319,7 @@ export default function ParentDashboard() {
                               ...editingStudent,
                               grade: parseInt(e.target.value)
                             })}
-                            className="input-field w-full"
+                            className="input-field w-full text-sm sm:text-base"
                             min="1"
                             max="12"
                           />
@@ -326,9 +328,9 @@ export default function ParentDashboard() {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Categories
                           </label>
-                          <div className="space-y-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             {STATIC_CATEGORIES.map((category) => (
-                              <label key={category} className="flex items-center">
+                              <label key={category} className="flex items-center text-sm sm:text-base">
                                 <input
                                   type="checkbox"
                                   checked={editingStudent.categories.includes(category)}
@@ -350,7 +352,7 @@ export default function ParentDashboard() {
                               {editingStudent.interests.map((interest) => (
                                 <div
                                   key={interest}
-                                  className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                                  className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm"
                                 >
                                   <span>{interest}</span>
                                   <button
@@ -358,7 +360,7 @@ export default function ParentDashboard() {
                                     onClick={() => handleRemoveInterest(interest)}
                                     className="text-blue-600 hover:text-blue-800 focus:outline-none"
                                   >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                   </button>
@@ -373,18 +375,18 @@ export default function ParentDashboard() {
                                 onChange={(e) => setNewInterest(e.target.value)}
                                 onKeyDown={handleAddInterest}
                                 placeholder="Type an interest and press Enter"
-                                className="input-field w-full pr-24"
+                                className="input-field w-full pr-24 text-sm sm:text-base"
                               />
-                              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-gray-500">
                                 Press Enter to add
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={() => handleUpdateStudent(editingStudent)}
-                            className="btn-primary flex-1"
+                            className="btn-primary flex-1 text-sm sm:text-base"
                           >
                             Save
                           </button>
@@ -393,7 +395,7 @@ export default function ParentDashboard() {
                               setEditingStudent(null)
                               setNewInterest('')
                             }}
-                            className="btn-secondary flex-1"
+                            className="btn-secondary flex-1 text-sm sm:text-base"
                           >
                             Cancel
                           </button>
@@ -401,18 +403,18 @@ export default function ParentDashboard() {
                       </div>
                     ) : (
                       <>
-                        <h2 className="text-xl font-bold mb-2">{student.name}</h2>
-                        <p className="text-gray-600 mb-1">Username: {student.userName}</p>
-                        <p className="text-gray-600 mb-1">Grade: {student.grade}</p>
-                        <p className="text-gray-600 mb-1">Categories: {student.categories.join(', ') || 'None'}</p>
-                        <div className="text-gray-600 mb-4">
+                        <h2 className="text-lg sm:text-xl font-bold mb-2">{student.name}</h2>
+                        <p className="text-sm sm:text-base text-gray-600 mb-1">Username: {student.userName}</p>
+                        <p className="text-sm sm:text-base text-gray-600 mb-1">Grade: {student.grade}</p>
+                        <p className="text-sm sm:text-base text-gray-600 mb-1">Categories: {student.categories.join(', ') || 'None'}</p>
+                        <div className="text-sm sm:text-base text-gray-600 mb-4">
                           <span className="mr-1">Interests:</span>
                           {student.interests.length > 0 ? (
                             <div className="inline-flex flex-wrap gap-1">
                               {student.interests.map((interest) => (
                                 <span
                                   key={interest}
-                                  className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-sm"
+                                  className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs sm:text-sm"
                                 >
                                   {interest}
                                 </span>
@@ -426,22 +428,22 @@ export default function ParentDashboard() {
                         <div className="space-y-2">
                           <button
                             onClick={() => setEditingStudent(student)}
-                            className="btn-primary w-full"
+                            className="btn-primary w-full text-sm sm:text-base"
                           >
                             Edit
                           </button>
                           
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <input
                               type="password"
                               placeholder="New password"
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
-                              className="input-field flex-1"
+                              className="input-field flex-1 text-sm sm:text-base"
                             />
                             <button
                               onClick={() => handleResetPassword(student.id)}
-                              className="btn-secondary whitespace-nowrap"
+                              className="btn-secondary whitespace-nowrap text-sm sm:text-base"
                             >
                               Reset Password
                             </button>
@@ -449,7 +451,7 @@ export default function ParentDashboard() {
 
                           <button
                             onClick={() => handleDeleteStudent(student.id)}
-                            className="text-red-600 hover:text-red-800 text-sm w-full"
+                            className="text-red-600 hover:text-red-800 text-xs sm:text-sm w-full"
                           >
                             Delete Student
                           </button>
@@ -461,19 +463,19 @@ export default function ParentDashboard() {
               </div>
             )
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {studentReports.map((report) => (
-                <div key={report.id} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex justify-between items-start mb-6">
+                <div key={report.id} className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
                     <div>
-                      <h2 className="text-2xl font-bold mb-2">{report.name}</h2>
-                      <p className="text-gray-600">Grade {report.grade}</p>
+                      <h2 className="text-xl sm:text-2xl font-bold mb-2">{report.name}</h2>
+                      <p className="text-sm sm:text-base text-gray-600">Grade {report.grade}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Total Worksheets: {report.totalWorksheets}</p>
-                      <p className="text-sm text-gray-600">Completed: {report.completedWorksheets}</p>
+                    <div className="text-left sm:text-right">
+                      <p className="text-xs sm:text-sm text-gray-600">Total Worksheets: {report.totalWorksheets}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Completed: {report.completedWorksheets}</p>
                       {report.averageScore !== null && (
-                        <p className="text-lg font-semibold text-blue-600">
+                        <p className="text-base sm:text-lg font-semibold text-blue-600">
                           Average Score: {report.averageScore}%
                         </p>
                       )}
@@ -482,16 +484,16 @@ export default function ParentDashboard() {
 
                   {/* Subject Performance */}
                   {report.subjectAverages.length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-3">Subject Performance</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="mb-4 sm:mb-6">
+                      <h3 className="text-base sm:text-lg font-semibold mb-3">Subject Performance</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                         {report.subjectAverages.map(({ subject, averageScore }) => (
                           <div
                             key={subject}
-                            className="bg-gray-50 rounded-lg p-3 text-center"
+                            className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center"
                           >
-                            <p className="text-sm text-gray-600 mb-1">{subject}</p>
-                            <p className="text-lg font-semibold text-blue-600">
+                            <p className="text-xs sm:text-sm text-gray-600 mb-1">{subject}</p>
+                            <p className="text-base sm:text-lg font-semibold text-blue-600">
                               {averageScore}%
                             </p>
                           </div>
@@ -503,34 +505,24 @@ export default function ParentDashboard() {
                   {/* Recent Worksheets */}
                   {report.recentWorksheets.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Recent Worksheets</h3>
-                      <div className="space-y-3">
+                      <h3 className="text-base sm:text-lg font-semibold mb-3">Recent Worksheets</h3>
+                      <div className="space-y-2">
                         {report.recentWorksheets.map((worksheet) => (
                           <div
                             key={worksheet.id}
-                            className="flex justify-between items-center bg-gray-50 rounded-lg p-3"
+                            className="bg-gray-50 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4"
                           >
                             <div>
-                              <p className="font-medium">{worksheet.title}</p>
-                              <p className="text-sm text-gray-600">
-                                {worksheet.subject} • {new Date(worksheet.createdAt).toLocaleDateString()}
+                              <h4 className="text-sm sm:text-base font-medium mb-1">{worksheet.title}</h4>
+                              <p className="text-xs sm:text-sm text-gray-600">
+                                Subject: {worksheet.subject} | Status: {worksheet.status}
+                                {worksheet.score !== null && ` | Score: ${worksheet.score}%`}
                               </p>
                             </div>
-                            <div className="text-right">
-                              <p className="text-sm text-gray-600">
-                                Status: {worksheet.status}
-                              </p>
-                              {worksheet.score !== null && (
-                                <p className="font-semibold text-blue-600">
-                                  Score: {worksheet.score}%
-                                </p>
-                              )}
-                              <button
-                                onClick={() => router.push(`/parent/worksheet/${worksheet.id}`)}
-                                className="mt-2 btn-secondary text-sm"
-                              >
-                                Review Worksheet
-                              </button>
+                            <div className="text-xs sm:text-sm text-gray-500">
+                              {worksheet.completedAt
+                                ? `Completed: ${new Date(worksheet.completedAt).toLocaleString()}`
+                                : `Started: ${new Date(worksheet.startedAt!).toLocaleString()}`}
                             </div>
                           </div>
                         ))}

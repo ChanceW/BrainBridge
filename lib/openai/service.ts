@@ -114,7 +114,7 @@ export class OpenAIService {
 
   static async generateQuestions(params: QuestionGenerationParams): Promise<GeneratedQuestion[]> {
     const count = params.count || OPENAI_CONFIG.questionCount;
-    const batchSize = 5; // Generate questions in smaller batches
+    const batchSize = 10; // Increased from 5 to 10 questions per batch
     const batches = Math.ceil(count / batchSize);
     const questions: GeneratedQuestion[] = [];
 
@@ -131,9 +131,9 @@ export class OpenAIService {
         
         questions.push(...batchQuestions);
         
-        // Add a small delay between batches
+        // Add a smaller delay between batches
         if (i < batches - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 500)); // Reduced from 1000ms to 500ms
         }
       }
 

@@ -6,11 +6,11 @@ export const OPENAI_CONFIG = {
   temperature: 0.7, // Default temperature for creative outputs
   maxRetries: 3, // Maximum number of retries for failed requests
   timeout: 60000, // Increased timeout to 60 seconds
-  questionCount: 20, // Set to 20 questions per worksheet
+  questionCount: 10, // Reduced from 20 to 10 questions per worksheet for faster generation
   rateLimits: {
-    requestsPerMinute: 2, // More conservative rate limit
-    requestsPerHour: 40, // Hourly limit to stay within free tier
-    retryDelay: 2000, // Base delay for retries in milliseconds
+    requestsPerMinute: 5, // Increased from 2 to 5 requests per minute
+    requestsPerHour: 100, // Increased from 40 to 100 requests per hour
+    retryDelay: 1000, // Reduced from 2000 to 1000ms for faster retries
   }
 }
 
