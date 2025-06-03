@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Navigation from '@/app/components/Navigation'
 
 // Define static categories
@@ -52,6 +52,7 @@ interface StudentReport {
 export default function ParentDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [students, setStudents] = useState<Student[]>([])
   const [studentReports, setStudentReports] = useState<StudentReport[]>([])
   const [loading, setLoading] = useState(true)
@@ -70,6 +71,14 @@ export default function ParentDashboard() {
       fetchStudentReports()
     }
   }, [status, router])
+
+  // Set active tab based on URL parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab === 'reports') {
+      setActiveTab('reports')
+    }
+  }, [searchParams])
 
   const fetchStudents = async () => {
     try {
@@ -463,39 +472,48 @@ export default function ParentDashboard() {
               </div>
             )
           ) : (
-            <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-8">
               {studentReports.map((report) => (
                 <div key={report.id} className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-bold mb-2">{report.name}</h2>
-                      <p className="text-sm sm:text-base text-gray-600">Grade {report.grade}</p>
+                  {/* Student Header */}
+                  <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{report.name}</h2>
+                  
+                  {/* Overview Stats */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                    <div className="bg-bg-blue bg-opacity-10 p-3 sm:p-4 rounded-lg text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-bg-blue-dark mb-1">
+                        {report.averageScore !== null ? `${report.averageScore}%` : 'N/A'}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Average Score</div>
                     </div>
-                    <div className="text-left sm:text-right">
-                      <p className="text-xs sm:text-sm text-gray-600">Total Worksheets: {report.totalWorksheets}</p>
-                      <p className="text-xs sm:text-sm text-gray-600">Completed: {report.completedWorksheets}</p>
-                      {report.averageScore !== null && (
-                        <p className="text-base sm:text-lg font-semibold text-blue-600">
-                          Average Score: {report.averageScore}%
-                        </p>
-                      )}
+                    <div className="bg-green-50 p-3 sm:p-4 rounded-lg text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">
+                        {report.completedWorksheets}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Completed Worksheets</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 sm:p-4 rounded-lg text-center">
+                      <div className="text-2xl sm:text-3xl font-bold text-gray-600 mb-1">
+                        {report.totalWorksheets}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">Total Worksheets</div>
                     </div>
                   </div>
 
                   {/* Subject Performance */}
                   {report.subjectAverages.length > 0 && (
-                    <div className="mb-4 sm:mb-6">
-                      <h3 className="text-base sm:text-lg font-semibold mb-3">Subject Performance</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                    <div className="mb-6 sm:mb-8">
+                      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Subject Performance</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                         {report.subjectAverages.map(({ subject, averageScore }) => (
                           <div
                             key={subject}
-                            className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center"
+                            className="bg-gray-50 p-3 sm:p-4 rounded-lg text-center"
                           >
-                            <p className="text-xs sm:text-sm text-gray-600 mb-1">{subject}</p>
-                            <p className="text-base sm:text-lg font-semibold text-blue-600">
+                            <div className="text-xs sm:text-sm text-gray-600 mb-1">{subject}</div>
+                            <div className="text-sm sm:text-lg font-semibold text-bg-blue-dark">
                               {averageScore}%
-                            </p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -505,33 +523,46 @@ export default function ParentDashboard() {
                   {/* Recent Worksheets */}
                   {report.recentWorksheets.length > 0 && (
                     <div>
-                      <h3 className="text-base sm:text-lg font-semibold mb-3">Recent Worksheets</h3>
-                      <div className="space-y-2">
+                      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Recent Worksheets</h3>
+                      <div className="space-y-3">
                         {report.recentWorksheets.map((worksheet) => (
                           <div
                             key={worksheet.id}
-                            className="bg-gray-50 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4"
+                            className="bg-gray-50 rounded-lg p-3 sm:p-4"
                           >
-                            <div>
-                              <h4 className="text-sm sm:text-base font-medium mb-1">{worksheet.title}</h4>
-                              <p className="text-xs sm:text-sm text-gray-600">
-                                Subject: {worksheet.subject} | Status: {worksheet.status}
-                                {worksheet.score !== null && ` | Score: ${worksheet.score}%`}
-                              </p>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm sm:text-base font-medium mb-2">{worksheet.title}</h4>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                  <div className="text-xs sm:text-sm text-gray-600">
+                                    <span className="font-medium">Subject:</span> {worksheet.subject}
+                                  </div>
+                                  <div className="text-xs sm:text-sm text-gray-600">
+                                    <span className="font-medium">Status:</span> {worksheet.status}
+                                  </div>
+                                  {worksheet.score !== null && (
+                                    <div className="text-xs sm:text-sm text-gray-600">
+                                      <span className="font-medium">Score:</span> {worksheet.score}%
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex flex-col sm:items-end gap-2">
+                                <div className="text-xs sm:text-sm text-gray-600">
+                                  {worksheet.completedAt
+                                    ? `Completed: ${new Date(worksheet.completedAt).toLocaleString()}`
+                                    : `Started: ${new Date(worksheet.startedAt!).toLocaleString()}`}
+                                </div>
+                                {worksheet.status === 'COMPLETED' && (
+                                  <button
+                                    onClick={() => router.push(`/parent/worksheet/${worksheet.id}`)}
+                                    className="btn-secondary text-xs sm:text-sm whitespace-nowrap w-full sm:w-auto"
+                                  >
+                                    View Analytics
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                            <div className="text-xs sm:text-sm text-gray-500">
-                              {worksheet.completedAt
-                                ? `Completed: ${new Date(worksheet.completedAt).toLocaleString()}`
-                                : `Started: ${new Date(worksheet.startedAt!).toLocaleString()}`}
-                            </div>
-                            {worksheet.status === 'COMPLETED' && (
-                              <button
-                                onClick={() => router.push(`/parent/worksheet/${worksheet.id}`)}
-                                className="btn-secondary text-xs sm:text-sm whitespace-nowrap"
-                              >
-                                View Analytics
-                              </button>
-                            )}
                           </div>
                         ))}
                       </div>

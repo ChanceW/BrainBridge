@@ -105,21 +105,21 @@ export default function ParentWorksheetPage({ params }: { params: { id: string }
   return (
     <>
       <Navigation />
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-4 sm:p-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-serif font-bold">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold">
               {worksheet.title} - Review
             </h1>
             <button
-              onClick={() => router.push('/parent/dashboard')}
-              className="btn-secondary"
+              onClick={() => router.push('/parent/dashboard?tab=reports')}
+              className="btn-secondary w-full sm:w-auto text-sm sm:text-base"
             >
-              Return to Dashboard
+              Return to Reports
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
             {/* Analytics Report */}
             {worksheet.status === 'COMPLETED' && (
               <WorksheetAnalytics 
@@ -133,22 +133,22 @@ export default function ParentWorksheetPage({ params }: { params: { id: string }
             )}
 
             {/* Question Review */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">Question Review</h2>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold">Question Review</h2>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                   <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
                 </div>
               </div>
 
               {/* Question Navigation */}
-              <div className="grid grid-cols-8 gap-2 mb-6">
+              <div className="grid grid-cols-6 sm:grid-cols-8 gap-1 sm:gap-2 mb-4 sm:mb-6">
                 {worksheet.questions.map((question, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentQuestionIndex(index)}
                     className={`
-                      relative w-full aspect-square rounded-lg text-sm font-medium
+                      relative w-full aspect-square rounded-lg text-xs sm:text-sm font-medium
                       flex items-center justify-center transition-colors
                       ${currentQuestionIndex === index 
                         ? 'border-b-2 border-bg-blue-dark text-bg-blue-dark bg-white' 
@@ -165,12 +165,12 @@ export default function ParentWorksheetPage({ params }: { params: { id: string }
 
               {/* Current Question */}
               <div>
-                <h3 className="text-lg font-medium mb-4">{currentQuestion.content}</h3>
-                <div className="space-y-3">
+                <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">{currentQuestion.content}</h3>
+                <div className="space-y-2 sm:space-y-3">
                   {currentQuestion.options.map((option, index) => (
                     <div
                       key={index}
-                      className={`w-full p-4 rounded-lg border ${
+                      className={`w-full p-3 sm:p-4 rounded-lg border text-sm sm:text-base ${
                         option === currentQuestion.studentAnswer
                           ? currentQuestion.isCorrect
                             ? 'bg-green-100 border-green-500'
@@ -185,11 +185,11 @@ export default function ParentWorksheetPage({ params }: { params: { id: string }
                   ))}
                 </div>
 
-                <div className="mt-6 p-4 bg-bg-blue bg-opacity-10 rounded-lg">
-                  <h4 className="font-semibold mb-2">Explanation:</h4>
-                  <p>{currentQuestion.explanation}</p>
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-bg-blue bg-opacity-10 rounded-lg">
+                  <h4 className="font-semibold text-sm sm:text-base mb-2">Explanation:</h4>
+                  <p className="text-sm sm:text-base">{currentQuestion.explanation}</p>
                   {currentQuestion.studentAnswer && (
-                    <p className="mt-2 text-gray-600">
+                    <p className="mt-2 text-sm sm:text-base text-gray-600">
                       Student's answer: {currentQuestion.studentAnswer}
                       {currentQuestion.isCorrect 
                         ? ' ✓' 
