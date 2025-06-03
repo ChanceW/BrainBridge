@@ -450,34 +450,34 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
   return (
     <>
       <Navigation />
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen p-4 sm:p-8">
         <div className="max-w-4xl mx-auto">
           {error && (
-            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+            <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm sm:text-base">
               {error}
             </div>
           )}
 
           {worksheet && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h1 className="text-2xl font-bold mb-2">{worksheet.title}</h1>
-                  <p className="text-gray-600 mb-1">{worksheet.description}</p>
-                  <p className="text-sm text-gray-500">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div className="flex-1">
+                  <h1 className="text-xl sm:text-2xl font-bold mb-2">{worksheet.title}</h1>
+                  <p className="text-sm sm:text-base text-gray-600 mb-1">{worksheet.description}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">
                     Subject: {worksheet.subject} | Grade: {worksheet.grade}
                   </p>
                   {worksheet.status === 'COMPLETED' && worksheet.score !== undefined && (
-                    <p className="text-sm font-semibold mt-2 text-green-600">
+                    <p className="text-sm sm:text-base font-semibold mt-2 text-green-600">
                       Score: {worksheet.score}%
                     </p>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   {worksheet.status === 'NOT_STARTED' && (
                     <button
                       onClick={handleStart}
-                      className="btn-primary"
+                      className="btn-primary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                     >
                       Start Worksheet
                     </button>
@@ -486,13 +486,13 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                     <>
                       <button
                         onClick={() => setShowExitConfirm(true)}
-                        className="btn-secondary"
+                        className="btn-secondary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                       >
                         Save & Exit
                       </button>
                       <button
                         onClick={() => setShowSubmitConfirm(true)}
-                        className="btn-primary"
+                        className="btn-primary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                         disabled={answers.some(answer => answer === '')}
                       >
                         Submit
@@ -502,7 +502,7 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                   {worksheet.status === 'COMPLETED' && (
                     <button
                       onClick={() => setShowResetConfirm(true)}
-                      className="btn-secondary"
+                      className="btn-secondary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                     >
                       Redo Worksheet
                     </button>
@@ -510,19 +510,19 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              {worksheet.status !== 'NOT_STARTED' && (
+              <div className="mt-6 sm:mt-8">
                 <div className="space-y-6">
                   {/* Question Navigation */}
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                       <span>Question {currentQuestionIndex + 1} of {worksheet.questions.length}</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {worksheet.questions.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentQuestionIndex(index)}
-                          className={`w-8 h-8 rounded-full text-sm font-medium flex items-center justify-center transition-colors ${
+                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-medium flex items-center justify-center transition-colors ${
                             currentQuestionIndex === index
                               ? 'bg-blue-500 text-white'
                               : answers[index]
@@ -537,24 +537,24 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                   </div>
 
                   {/* Current Question */}
-                  <div className="p-6 bg-gray-50 rounded-lg">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="font-medium">Question {currentQuestionIndex + 1}</h3>
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex justify-between items-start gap-4">
+                      <h3 className="text-base sm:text-lg font-medium">Question {currentQuestionIndex + 1}</h3>
                       {worksheet.status === 'COMPLETED' && (
-                        <span className={`text-sm font-medium ${
+                        <span className={`text-xs sm:text-sm font-medium ${
                           worksheet.questions[currentQuestionIndex].isCorrect ? 'text-green-600' : 'text-red-600'
                         }`}>
                           {worksheet.questions[currentQuestionIndex].isCorrect ? 'Correct' : 'Incorrect'}
                         </span>
                       )}
                     </div>
-                    <p className="mb-6">{worksheet.questions[currentQuestionIndex].content}</p>
+                    <p className="text-sm sm:text-base mb-4 sm:mb-6">{worksheet.questions[currentQuestionIndex].content}</p>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {worksheet.questions[currentQuestionIndex].options.map((option) => (
                         <label
                           key={option}
-                          className={`block p-4 rounded-lg border cursor-pointer transition-colors ${
+                          className={`block p-3 sm:p-4 rounded-lg border cursor-pointer transition-colors text-sm sm:text-base ${
                             worksheet.status === 'COMPLETED'
                               ? option === worksheet.questions[currentQuestionIndex].answer
                                 ? 'bg-green-100 border-green-500'
@@ -566,124 +566,117 @@ export default function WorksheetPage({ params }: { params: { id: string } }) {
                               : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                           }`}
                         >
-                          <input
-                            type="radio"
-                            name={`question-${worksheet.questions[currentQuestionIndex].id}`}
-                            value={option}
-                            checked={answers[currentQuestionIndex] === option}
-                            onChange={() => canEdit() && handleAnswer(option)}
-                            disabled={!canEdit()}
-                            className="mr-3"
-                          />
-                          {option}
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name={`question-${worksheet.questions[currentQuestionIndex].id}`}
+                              value={option}
+                              checked={answers[currentQuestionIndex] === option}
+                              onChange={() => canEdit() && handleAnswer(option)}
+                              disabled={!canEdit()}
+                              className="w-4 h-4 sm:w-5 sm:h-5"
+                            />
+                            <span className="break-words">{option}</span>
+                          </div>
                         </label>
                       ))}
                     </div>
-
-                    {worksheet.status === 'COMPLETED' && (
-                      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                        <p className="font-medium text-gray-700">Explanation:</p>
-                        <p className="text-gray-600">{worksheet.questions[currentQuestionIndex].explanation}</p>
-                      </div>
-                    )}
                   </div>
 
                   {/* Navigation Buttons */}
-                  {worksheet.status === 'IN_PROGRESS' && canEdit() && (
-                    <div className="flex justify-between mt-6">
-                      <button
-                        onClick={handlePrevious}
-                        disabled={currentQuestionIndex === 0}
-                        className="btn-secondary"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        onClick={handleNext}
-                        disabled={currentQuestionIndex === worksheet.questions.length - 1}
-                        className="btn-secondary"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-6 sm:mt-8">
+                    <button
+                      onClick={handlePrevious}
+                      disabled={currentQuestionIndex === 0}
+                      className="btn-secondary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      disabled={currentQuestionIndex === worksheet.questions.length - 1}
+                      className="btn-primary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
-          {/* Confirmation Dialogs */}
+          {/* Exit Confirmation Modal */}
           {showExitConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                <h3 className="text-lg font-bold mb-4">Save and Exit?</h3>
-                <p className="text-gray-600 mb-6">
-                  Your progress will be saved. You can continue later.
+              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Save and Exit?</h3>
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                  Your progress will be saved. You can continue this worksheet later from your dashboard.
                 </p>
-                <div className="flex justify-end gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     onClick={() => setShowExitConfirm(false)}
-                    className="btn-secondary"
+                    className="btn-secondary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleExit}
-                    disabled={isSaving}
-                    className="btn-primary"
+                    className="btn-primary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                   >
-                    {isSaving ? 'Saving...' : 'Save & Exit'}
+                    Save & Exit
                   </button>
                 </div>
               </div>
             </div>
           )}
 
+          {/* Submit Confirmation Modal */}
           {showSubmitConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                <h3 className="text-lg font-bold mb-4">Submit Worksheet?</h3>
-                <p className="text-gray-600 mb-6">
-                  Are you sure you want to submit your answers? You won't be able to change them after submission.
+              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Submit Worksheet?</h3>
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                  Are you sure you want to submit your answers? This action cannot be undone.
                 </p>
-                <div className="flex justify-end gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     onClick={() => setShowSubmitConfirm(false)}
-                    className="btn-secondary"
+                    className="btn-secondary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="btn-primary"
+                    className="btn-primary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                   >
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
+                    Submit
                   </button>
                 </div>
               </div>
             </div>
           )}
 
+          {/* Reset Confirmation Modal */}
           {showResetConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                <h3 className="text-lg font-bold mb-4">Reset Worksheet?</h3>
-                <p className="text-gray-600 mb-6">
-                  This will clear all your answers and allow you to start over. Are you sure?
+              <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Reset Worksheet?</h3>
+                <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+                  This will clear all your answers and allow you to start over. This action cannot be undone.
                 </p>
-                <div className="flex justify-end gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     onClick={() => setShowResetConfirm(false)}
-                    className="btn-secondary"
+                    className="btn-secondary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleReset}
-                    className="btn-primary"
+                    className="btn-primary w-full sm:w-auto text-sm sm:text-base py-2.5 sm:py-3"
                   >
-                    Reset
+                    Reset Worksheet
                   </button>
                 </div>
               </div>
