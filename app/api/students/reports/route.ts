@@ -72,16 +72,35 @@ export async function GET() {
         if (!acc[subject]) {
           acc[subject] = { total: 0, count: 0 }
         }
-        acc[subject].total += worksheet.score || 0
-        acc[subject].count += 1
+        if (worksheet.score !== null) {
+          acc[subject].total += worksheet.score
+          acc[subject].count += 1
+        }
         return acc
       }, {} as Record<string, { total: number; count: number }>)
 
       // Calculate average score per subject
-      const subjectAverages = Object.entries(subjectPerformance).map(([subject, { total, count }]) => ({
-        subject,
-        averageScore: Math.round(total / count)
-      }))
+      const subjectAverages = Object.entries(subjectPerformance)
+        .filter(([_, { count }]) => count > 0) // Only include subjects with completed worksheets
+        .map(([subject, { total, count }]) => ({
+          subject,
+          averageScore: Math.round(total / count)
+        }))
+        .sort((a, b) => a.subject.localeCompare(b.subject)) // Sort by subject name for consistency
+
+      // Format recent worksheets to match test expectations
+      const recentWorksheets = student.worksheets
+        .slice(0, 5) // Last 5 worksheets
+        .map(w => ({
+          id: w.id,
+          title: w.title,
+          subject: w.subject,
+          status: w.status,
+          score: w.score,
+          startedAt: w.startedAt?.toISOString() || null,
+          completedAt: w.completedAt?.toISOString() || null,
+          createdAt: w.createdAt.toISOString()
+        }))
 
       return {
         id: student.id,
@@ -93,7 +112,7 @@ export async function GET() {
         completedWorksheets: completedWorksheets.length,
         averageScore,
         subjectAverages,
-        recentWorksheets: student.worksheets.slice(0, 5) // Last 5 worksheets
+        recentWorksheets
       }
     })
 

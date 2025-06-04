@@ -74,7 +74,7 @@ function StudentDashboardContent() {
           previous: data.previousWorksheets
         })
         setCurrentWorksheet(data.currentWorksheet)
-        setPreviousWorksheets(data.previousWorksheets)
+        setPreviousWorksheets(Array.isArray(data.previousWorksheets) ? data.previousWorksheets : [])
       } else {
         console.error('Failed to fetch worksheets:', data.error)
         setError(data.error || 'Failed to fetch worksheets')
