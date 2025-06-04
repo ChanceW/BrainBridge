@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
-export default function SignIn() {
+function SignInContent() {
   const router = useRouter()
   const { data: session } = useSession()
   const searchParams = useSearchParams()
@@ -30,5 +30,17 @@ export default function SignIn() {
     <main className="min-h-screen flex items-center justify-center">
       <div className="text-center">Redirecting to login...</div>
     </main>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </main>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 } 
