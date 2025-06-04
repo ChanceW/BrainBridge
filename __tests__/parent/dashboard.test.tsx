@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import ParentDashboard from '@/app/parent/dashboard/page'
 
 // Mock next/navigation
@@ -22,7 +23,7 @@ describe('Parent Dashboard', () => {
 
   const mockStudents = [
     {
-      id: '1',
+      id: 'clg123456789012345678901234',
       name: 'John Doe',
       userName: 'johndoe',
       grade: 5,
@@ -30,7 +31,7 @@ describe('Parent Dashboard', () => {
       interests: ['Space', 'Robots'],
     },
     {
-      id: '2',
+      id: 'clg234567890123456789012345',
       name: 'Jane Smith',
       userName: 'janesmith',
       grade: 4,
@@ -41,7 +42,7 @@ describe('Parent Dashboard', () => {
 
   const mockStudentReports = [
     {
-      id: '1',
+      id: 'clg123456789012345678901234',
       name: 'John Doe',
       userName: 'johndoe',
       grade: 5,
@@ -55,7 +56,7 @@ describe('Parent Dashboard', () => {
       ],
       recentWorksheets: [
         {
-          id: 'w1',
+          id: 'clw123456789012345678901234',
           title: 'Math Practice',
           subject: 'Math',
           status: 'COMPLETED',
@@ -67,7 +68,7 @@ describe('Parent Dashboard', () => {
       ]
     },
     {
-      id: '2',
+      id: 'clg234567890123456789012345',
       name: 'Jane Smith',
       userName: 'janesmith',
       grade: 4,
@@ -81,7 +82,7 @@ describe('Parent Dashboard', () => {
       ],
       recentWorksheets: [
         {
-          id: 'w2',
+          id: 'clw234567890123456789012345',
           title: 'Geography Quiz',
           subject: 'Geography',
           status: 'COMPLETED',
@@ -110,7 +111,7 @@ describe('Parent Dashboard', () => {
       status: 'authenticated',
     })
 
-    // Mock fetch for students and reports
+    // Mock fetch for students and reports with proper response objects
     global.fetch = jest.fn()
       .mockImplementationOnce(() => Promise.resolve({
         ok: true,
@@ -182,7 +183,7 @@ describe('Parent Dashboard', () => {
       }))
       .mockImplementationOnce(() => Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ message: 'Student deleted successfully' }),
+        json: () => Promise.resolve({ success: true }),
       }))
 
     render(<ParentDashboard />)
@@ -195,19 +196,10 @@ describe('Parent Dashboard', () => {
     const deleteButtons = screen.getAllByRole('button', { name: /delete student/i })
     fireEvent.click(deleteButtons[0])
 
-    // Modal should appear
     await waitFor(() => {
-      expect(screen.getByText('Delete Account')).toBeInTheDocument()
-    })
-
-    // Confirm deletion in modal
-    const deleteButtonsInModal = screen.getAllByRole('button', { name: /delete/i })
-    const confirmButton = deleteButtonsInModal[deleteButtonsInModal.length - 1]
-    fireEvent.click(confirmButton)
-
-    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this student?')
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/students?id=1',
+        '/api/students?id=clg123456789012345678901234',
         expect.objectContaining({ method: 'DELETE' })
       )
     })
@@ -243,14 +235,74 @@ describe('Parent Dashboard', () => {
   })
 
   it('should handle API errors gracefully', async () => {
-    global.fetch = jest.fn().mockRejectedValueOnce(new Error('Failed to fetch'))
+    // Mock fetch to return an error response
+    global.fetch = jest.fn()
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ error: 'Failed to fetch students' }),
+      }))
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockStudentReports),
+      }))
 
     render(<ParentDashboard />)
     
     await waitFor(() => {
-      expect(
-        screen.getByText(/failed to fetch students|failed to fetch student reports/i)
-      ).toBeInTheDocument()
+      expect(screen.getByText('Failed to fetch students')).toBeInTheDocument()
+    })
+  })
+
+  it('should handle network errors', async () => {
+    // Mock fetch to throw a network error
+    global.fetch = jest.fn()
+      .mockRejectedValueOnce(new Error('Network error'))
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockStudentReports),
+      }))
+
+    render(<ParentDashboard />)
+    
+    await waitFor(() => {
+      expect(screen.getByText('Network error')).toBeInTheDocument()
+    })
+  })
+
+  it('should handle student deletion with error', async () => {
+    window.confirm = jest.fn(() => true)
+    
+    // Mock successful fetch for initial data
+    global.fetch = jest.fn()
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockStudents),
+      }))
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockStudentReports),
+      }))
+      // Mock failed delete request
+      .mockImplementationOnce(() => Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ error: 'Failed to delete student' }),
+      }))
+
+    render(<ParentDashboard />)
+    
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument()
+    })
+
+    const deleteButtons = screen.getAllByRole('button', { name: /delete student/i })
+    fireEvent.click(deleteButtons[0])
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/students?id=clg123456789012345678901234',
+        expect.objectContaining({ method: 'DELETE' })
+      )
+      expect(screen.getByText('Failed to delete student')).toBeInTheDocument()
     })
   })
 }) 

@@ -41,7 +41,7 @@ function HomeContent() {
               href="/parent/signup" 
               className="btn-get-started text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto"
             >
-              HelloWorld
+              Get Started
             </Link>
             
             <Link 
