@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: '/parent/login',
+    signIn: '/auth/signin',
     error: '/error',
   },
   callbacks: {
@@ -159,7 +159,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.role = 'parent' // Google sign-in is only for parents
+        token.role = user.role
       }
       return token
     },
