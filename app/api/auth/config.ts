@@ -136,11 +136,14 @@ export const authOptions: NextAuthOptions = {
                 }
               })
             }
+            // Set the user role for the token
+            user.id = existingUser.id
+            user.role = 'parent'
             return true
           }
 
           // Create new user if they don't exist
-          await prisma.parent.create({
+          const newParent = await prisma.parent.create({
             data: {
               email: user.email!,
               name: user.name!,
@@ -148,6 +151,9 @@ export const authOptions: NextAuthOptions = {
               image: user.image || null,
             }
           })
+          // Set the user role for the token
+          user.id = newParent.id
+          user.role = 'parent'
           return true
         } catch (error) {
           console.error('Error during Google sign in:', error)

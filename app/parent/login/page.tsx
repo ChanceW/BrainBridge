@@ -67,12 +67,22 @@ function ParentLoginContent() {
     setError('')
 
     try {
-      await signIn('google', {
+      const result = await signIn('google', {
         callbackUrl: '/parent/dashboard',
-        redirect: true,
+        redirect: false,
       })
+
+      if (result?.error) {
+        console.error('Google sign in error:', result.error)
+        setError('An error occurred during Google sign in. Please try again.')
+      } else if (result?.ok) {
+        // Use replace to prevent back button issues
+        router.replace('/parent/dashboard')
+      }
     } catch (error) {
+      console.error('Google sign in error:', error)
       setError('An error occurred during Google sign in. Please try again.')
+    } finally {
       setIsLoading(false)
     }
   }
