@@ -86,11 +86,15 @@ function DashboardContent() {
   const fetchStudents = async () => {
     try {
       const response = await fetch('/api/students')
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to fetch students')
+      }
       const data = await response.json()
       setStudents(data)
     } catch (error) {
       console.error('Error fetching students:', error)
-      setError('Failed to fetch students')
+      setError(error instanceof Error ? error.message : 'Failed to fetch students')
     } finally {
       setLoading(false)
     }
@@ -99,11 +103,15 @@ function DashboardContent() {
   const fetchStudentReports = async () => {
     try {
       const response = await fetch('/api/students/reports')
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to fetch student reports')
+      }
       const data = await response.json()
       setStudentReports(data)
     } catch (error) {
       console.error('Error fetching student reports:', error)
-      setError('Failed to fetch student reports')
+      setError(error instanceof Error ? error.message : 'Failed to fetch student reports')
     }
   }
 
@@ -169,24 +177,53 @@ function DashboardContent() {
   }
 
   const handleDeleteStudent = async (studentId: string) => {
+    if (!studentId || typeof studentId !== 'string' || studentId.length < 20) {
+      console.error('Invalid student ID format:', studentId)
+      setError('Invalid student ID')
+      return
+    }
+
     if (!confirm('Are you sure you want to delete this student?')) {
       return
     }
 
     try {
-      const response = await fetch(`/api/students?id=${studentId}`, {
+      console.log('Attempting to delete student:', studentId)
+      const response = await fetch(`/api/students?id=${encodeURIComponent(studentId)}`, {
         method: 'DELETE'
       })
-
+      
+      const data = await response.json()
+      console.log('Delete student response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data
+      })
+      
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to delete student')
+        console.error('Delete student response not OK:', {
+          status: response.status,
+          statusText: response.statusText,
+          data,
+          studentId
+        })
+        // Use the error message from the API if available
+        throw new Error(data.error || `Failed to delete student (Status: ${response.status})`)
       }
 
+      console.log('Student deleted successfully:', data)
       setSuccess('Student deleted successfully')
       fetchStudents()
+      fetchStudentReports() // Refresh reports after deletion
     } catch (error) {
-      console.error('Error deleting student:', error)
+      console.error('Error deleting student:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        studentId,
+        errorName: error instanceof Error ? error.name : 'Unknown',
+        errorStack: error instanceof Error ? error.stack : undefined
+      })
+      // Use the error message from the API if available, otherwise use a generic message
       setError(error instanceof Error ? error.message : 'Failed to delete student')
     }
   }

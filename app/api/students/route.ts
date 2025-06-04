@@ -195,8 +195,9 @@ export async function DELETE(request: Request) {
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.email) {
+      console.error('Delete student unauthorized - no session or email')
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Please log in again' },
         { status: 401 }
       )
     }
@@ -205,11 +206,23 @@ export async function DELETE(request: Request) {
     const id = searchParams.get('id')
 
     if (!id) {
+      console.error('Delete student failed - no ID provided')
       return NextResponse.json(
         { error: 'Student ID is required' },
         { status: 400 }
       )
     }
+
+    // Validate ID format (CUIDs are typically 25 characters)
+    if (typeof id !== 'string' || id.length < 20) {
+      console.error('Delete student failed - invalid ID format:', { id })
+      return NextResponse.json(
+        { error: 'Invalid student ID format' },
+        { status: 400 }
+      )
+    }
+
+    console.log('Attempting to delete student:', { id, parentEmail: session.user.email })
 
     // Verify parent owns this student
     const student = await prisma.student.findFirst({
@@ -218,25 +231,87 @@ export async function DELETE(request: Request) {
         parent: {
           email: session.user.email as string
         }
+      },
+      include: {
+        worksheets: {
+          select: {
+            id: true,
+            title: true,
+            status: true
+          }
+        }
       }
     })
 
     if (!student) {
+      console.error('Delete student failed - student not found or not owned by parent:', {
+        studentId: id,
+        parentEmail: session.user.email,
+        error: 'Student not found or not owned by parent'
+      })
       return NextResponse.json(
-        { error: 'Student not found' },
+        { error: 'Student not found or you do not have permission to delete this student' },
         { status: 404 }
       )
     }
 
-    await prisma.student.delete({
-      where: { id }
-    })
+    // Log if student has associated worksheets
+    if (student.worksheets.length > 0) {
+      console.log('Student has associated worksheets:', {
+        studentId: id,
+        worksheetCount: student.worksheets.length,
+        worksheets: student.worksheets.map(w => ({ id: w.id, title: w.title, status: w.status }))
+      })
+    }
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting student:', error)
+    try {
+      // First try to delete all worksheets and their questions
+      if (student.worksheets.length > 0) {
+        console.log('Deleting associated worksheets first...')
+        await prisma.worksheet.deleteMany({
+          where: { studentId: id }
+        })
+      }
+
+      // Then delete the student
+      await prisma.student.delete({
+        where: { id }
+      })
+      console.log('Student successfully deleted:', { id })
+      return NextResponse.json({ success: true })
+    } catch (deleteError: any) {
+      console.error('Database error while deleting student:', {
+        error: deleteError,
+        studentId: id,
+        parentEmail: session.user.email,
+        errorCode: deleteError?.code,
+        errorMessage: deleteError?.message,
+        errorName: deleteError?.name,
+        errorStack: deleteError?.stack
+      })
+      
+      // Provide more specific error message based on the error code
+      let errorMessage = 'Failed to delete student'
+      if (deleteError?.code === 'P2025') {
+        errorMessage = 'Student record not found'
+      } else if (deleteError?.code === 'P2003') {
+        errorMessage = 'Cannot delete student due to existing references'
+      }
+      
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 500 }
+      )
+    }
+  } catch (error: any) {
+    console.error('Unexpected error deleting student:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: error?.code,
+      errorMessage: error?.message
+    })
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error while deleting student' },
       { status: 500 }
     )
   }

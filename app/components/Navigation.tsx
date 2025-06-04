@@ -18,6 +18,7 @@ export default function Navigation() {
                   src="/ThinkDrillsLogo.png"
                   alt="ThinkDrills Logo"
                   fill
+                  priority
                   className="object-contain rounded-[15px]"
                 />
               </div>
